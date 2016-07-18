@@ -10,7 +10,7 @@ import UIKit
 
 class FirstViewController: UIViewController {
 
-    @IBOutlet weak var avatarImageView: UIImageView!
+    @IBOutlet weak var thumbImageView: RoundedImageView!
     
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -18,12 +18,24 @@ class FirstViewController: UIViewController {
     }
     
     func setupGestureRecognizers() {
-        let gesture = UIPanGestureRecognizer(target: self, action: #selector(handleGesture))
-        avatarImageView.addGestureRecognizer(gesture)
+        let panGesture = UIPanGestureRecognizer(target: self, action: #selector(handlePanGesture))
+        thumbImageView.addGestureRecognizer(panGesture)
+        let tapGesture = UITapGestureRecognizer(target: self, action: #selector(handleTapGesture))
+        thumbImageView.addGestureRecognizer(tapGesture)
     }
     
-    func handleGesture(gesture: UIGestureRecognizer) {
-        avatarImageView.center = gesture.location(in: view)
+    func handlePanGesture(gesture: UIGestureRecognizer) {
+        thumbImageView.center = gesture.location(in: view)
+    }
+    
+    func handleTapGesture(gesture: UIGestureRecognizer) {
+        guard let secondVC = storyboard?.instantiateViewController(withIdentifier: "SecondViewController") else {
+            return
+        }
+        let navController = UINavigationController(rootViewController: secondVC)
+        navController.modalPresentationStyle = .custom
+        navController.transitioningDelegate = TransitioningDelegate()
+        present(navController, animated: true)
     }
 }
 

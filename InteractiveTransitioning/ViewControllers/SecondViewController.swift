@@ -10,19 +10,19 @@ import UIKit
 
 class SecondViewController: UIViewController {
     
-    @IBOutlet weak var avatarImageView: UIImageView!
+    @IBOutlet weak var fullImageView: UIImageView!
     
     override func viewDidLoad() {
         super.viewDidLoad()
-        setupGestureRecognizers()
+        setupNavigationBar()
     }
     
-    func setupGestureRecognizers() {
-        let gesture = UIPanGestureRecognizer(target: self, action: #selector(handleGesture))
-        avatarImageView.addGestureRecognizer(gesture)
+    func setupNavigationBar() {
+        navigationItem.rightBarButtonItem = UIBarButtonItem(barButtonSystemItem: .cancel, target: self, action: #selector(closeViewController))
     }
     
-    func handleGesture(gesture: UIGestureRecognizer) {
-        avatarImageView.center = gesture.location(in: view)
+    func closeViewController() {
+        dismiss(animated: true)
     }
+    
 }

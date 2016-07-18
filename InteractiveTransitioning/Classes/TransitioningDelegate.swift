@@ -1,5 +1,5 @@
 //
-//  MySegue.swift
+//  TransitioningDelegate.swift
 //  InteractiveTransitioning
 //
 //  Created by Danis Ziganshin on 18/07/16.
@@ -8,6 +8,6 @@
 
 import UIKit
 
-class MySegue: UIStoryboardSegue {
+class TransitioningDelegate: NSObject, UIViewControllerTransitioningDelegate {
     
 }
