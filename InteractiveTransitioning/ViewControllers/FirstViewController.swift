@@ -8,7 +8,7 @@
 
 import UIKit
 
-class ViewController: UIViewController {
+class FirstViewController: UIViewController {
 
     @IBOutlet weak var avatarImageView: UIImageView!
     
@@ -18,8 +18,12 @@ class ViewController: UIViewController {
     }
     
     func setupGestureRecognizers() {
-        
+        let gesture = UIPanGestureRecognizer(target: self, action: #selector(handleGesture))
+        avatarImageView.addGestureRecognizer(gesture)
     }
-
+    
+    func handleGesture(gesture: UIGestureRecognizer) {
+        avatarImageView.center = gesture.location(in: view)
+    }
 }
 

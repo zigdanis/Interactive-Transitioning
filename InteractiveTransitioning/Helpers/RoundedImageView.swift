@@ -29,6 +29,5 @@ class RoundedImageView : UIImageView {
         layer.masksToBounds = true
         layer.borderColor = borderColor.cgColor
         layer.borderWidth = borderWidth
-        //layer.shouldRasterize = true
     }
 }
