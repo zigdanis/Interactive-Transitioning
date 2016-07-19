@@ -11,6 +11,7 @@ import UIKit
 class FirstViewController: UIViewController {
 
     @IBOutlet weak var thumbImageView: RoundedImageView!
+    let transitionController = TransitioningDelegate()
     
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -34,7 +35,7 @@ class FirstViewController: UIViewController {
         }
         let navController = UINavigationController(rootViewController: secondVC)
         navController.modalPresentationStyle = .custom
-        navController.transitioningDelegate = TransitioningDelegate()
+        navController.transitioningDelegate = transitionController
         present(navController, animated: true)
     }
 }

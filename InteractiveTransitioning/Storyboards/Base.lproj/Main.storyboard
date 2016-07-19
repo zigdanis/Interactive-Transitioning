@@ -57,16 +57,17 @@
                         <rect key="frame" x="0.0" y="0.0" width="375" height="667"/>
                         <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                         <subviews>
-                            <imageView userInteractionEnabled="NO" contentMode="scaleAspectFill" horizontalHuggingPriority="251" verticalHuggingPriority="251" image="close-winter" translatesAutoresizingMaskIntoConstraints="NO" id="Vdd-0y-Deo"/>
+                            <imageView clipsSubviews="YES" userInteractionEnabled="NO" tag="13" contentMode="scaleAspectFill" horizontalHuggingPriority="251" verticalHuggingPriority="251" image="close-winter" translatesAutoresizingMaskIntoConstraints="NO" id="Vdd-0y-Deo"/>
                         </subviews>
                         <color key="backgroundColor" white="1" alpha="1" colorSpace="calibratedWhite"/>
                         <constraints>
                             <constraint firstItem="Vdd-0y-Deo" firstAttribute="leading" secondItem="6Ul-1m-fWW" secondAttribute="leading" id="0F6-52-KUh"/>
-                            <constraint firstItem="Vdd-0y-Deo" firstAttribute="top" secondItem="Mtg-Nw-ayG" secondAttribute="bottom" id="9gu-Fu-ta8"/>
+                            <constraint firstItem="Vdd-0y-Deo" firstAttribute="top" secondItem="6Ul-1m-fWW" secondAttribute="top" id="238-7O-SAg"/>
                             <constraint firstAttribute="trailing" secondItem="Vdd-0y-Deo" secondAttribute="trailing" id="TFm-i5-iby"/>
                             <constraint firstItem="r5t-cK-Q4q" firstAttribute="top" secondItem="Vdd-0y-Deo" secondAttribute="bottom" id="Z7j-4X-AY1"/>
                         </constraints>
                     </view>
+                    <simulatedNavigationBarMetrics key="simulatedTopBarMetrics" prompted="NO"/>
                     <connections>
                         <outlet property="fullImageView" destination="Vdd-0y-Deo" id="9An-nX-Bez"/>
                     </connections>
