@@ -10,12 +10,18 @@ import UIKit
 
 class FirstViewController: UIViewController {
 
-    @IBOutlet weak var thumbImageView: RoundedImageView!
+    @IBOutlet weak var thumbImageView: RoundedImageView2!
     let transitionController = TransitioningDelegate()
+    var startPoint: CGPoint!
     
     override func viewDidLoad() {
         super.viewDidLoad()
         setupGestureRecognizers()
+//        let delayTime = DispatchTime.now() + .seconds(1)
+//        DispatchQueue.main.after(when: delayTime) {
+//            self.thumbImageView.applyRoundedMask()
+//        }
+        startPoint = thumbImageView.center
     }
     
     func setupGestureRecognizers() {
@@ -26,7 +32,13 @@ class FirstViewController: UIViewController {
     }
     
     func handlePanGesture(gesture: UIGestureRecognizer) {
-        thumbImageView.center = gesture.location(in: view)
+        let location = gesture.location(in: view)
+        let xDist = location.x - startPoint.x
+        let yDist = location.y - startPoint.y
+        let distance = sqrt(xDist * xDist + yDist * yDist)
+        let newFrame = CGRect(x:0,y:0,width:150 + distance,height: 150 + distance)
+        thumbImageView.frame = newFrame
+        thumbImageView.center = startPoint
     }
     
     func handleTapGesture(gesture: UIGestureRecognizer) {

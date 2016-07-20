@@ -3,6 +3,7 @@
     <dependencies>
         <deployment identifier="iOS"/>
         <plugIn identifier="com.apple.InterfaceBuilder.IBCocoaTouchPlugin" version="11133"/>
+        <capability name="Aspect ratio constraints" minToolsVersion="5.1"/>
         <capability name="documents saved in the Xcode 8 format" minToolsVersion="8.0"/>
     </dependencies>
     <scenes>
@@ -18,7 +19,7 @@
                         <rect key="frame" x="0.0" y="0.0" width="375" height="667"/>
                         <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                         <subviews>
-                            <imageView contentMode="scaleAspectFill" horizontalHuggingPriority="251" verticalHuggingPriority="251" image="close-winter" translatesAutoresizingMaskIntoConstraints="NO" id="iBg-th-z4V" customClass="RoundedImageView" customModule="InteractiveTransitioning" customModuleProvider="target">
+                            <imageView contentMode="scaleAspectFill" horizontalHuggingPriority="251" verticalHuggingPriority="251" image="close-winter" translatesAutoresizingMaskIntoConstraints="NO" id="iBg-th-z4V" customClass="RoundedImageView2" customModule="InteractiveTransitioning" customModuleProvider="target">
                                 <color key="backgroundColor" white="0.0" alpha="0.0" colorSpace="calibratedWhite"/>
                                 <constraints>
                                     <constraint firstAttribute="height" constant="150" id="Dd4-ai-I06"/>
@@ -57,17 +58,27 @@
                         <rect key="frame" x="0.0" y="0.0" width="375" height="667"/>
                         <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                         <subviews>
-                            <imageView clipsSubviews="YES" userInteractionEnabled="NO" tag="13" contentMode="scaleAspectFill" horizontalHuggingPriority="251" verticalHuggingPriority="251" image="close-winter" translatesAutoresizingMaskIntoConstraints="NO" id="Vdd-0y-Deo"/>
+                            <imageView clipsSubviews="YES" userInteractionEnabled="NO" tag="13" contentMode="scaleAspectFill" horizontalHuggingPriority="251" verticalHuggingPriority="251" image="close-winter" translatesAutoresizingMaskIntoConstraints="NO" id="Vdd-0y-Deo">
+                                <constraints>
+                                    <constraint firstAttribute="width" secondItem="Vdd-0y-Deo" secondAttribute="height" id="nyj-xT-JQ6"/>
+                                </constraints>
+                                <userDefinedRuntimeAttributes>
+                                    <userDefinedRuntimeAttribute type="number" keyPath="borderWidth">
+                                        <real key="value" value="1"/>
+                                    </userDefinedRuntimeAttribute>
+                                </userDefinedRuntimeAttributes>
+                            </imageView>
                         </subviews>
                         <color key="backgroundColor" white="1" alpha="1" colorSpace="calibratedWhite"/>
                         <constraints>
-                            <constraint firstItem="Vdd-0y-Deo" firstAttribute="leading" secondItem="6Ul-1m-fWW" secondAttribute="leading" id="0F6-52-KUh"/>
+                            <constraint firstItem="Vdd-0y-Deo" firstAttribute="leading" secondItem="6Ul-1m-fWW" secondAttribute="leading" priority="800" id="0F6-52-KUh"/>
                             <constraint firstItem="Vdd-0y-Deo" firstAttribute="top" secondItem="6Ul-1m-fWW" secondAttribute="top" id="238-7O-SAg"/>
-                            <constraint firstAttribute="trailing" secondItem="Vdd-0y-Deo" secondAttribute="trailing" id="TFm-i5-iby"/>
+                            <constraint firstAttribute="trailing" secondItem="Vdd-0y-Deo" secondAttribute="trailing" priority="800" id="TFm-i5-iby"/>
                             <constraint firstItem="r5t-cK-Q4q" firstAttribute="top" secondItem="Vdd-0y-Deo" secondAttribute="bottom" id="Z7j-4X-AY1"/>
+                            <constraint firstItem="Vdd-0y-Deo" firstAttribute="centerX" secondItem="6Ul-1m-fWW" secondAttribute="centerX" id="zKd-0r-pzT"/>
                         </constraints>
                     </view>
-                    <simulatedNavigationBarMetrics key="simulatedTopBarMetrics" prompted="NO"/>
+                    <nil key="simulatedTopBarMetrics"/>
                     <connections>
                         <outlet property="fullImageView" destination="Vdd-0y-Deo" id="9An-nX-Bez"/>
                     </connections>

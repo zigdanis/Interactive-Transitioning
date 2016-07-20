@@ -19,7 +19,7 @@ class TransitioningDelegate: NSObject, UIViewControllerTransitioningDelegate {
 
 class AnimationController: NSObject, UIViewControllerAnimatedTransitioning {
     
-    let duration:TimeInterval = 2
+    let duration:TimeInterval = 10
     
     func transitionDuration(using transitionContext: UIViewControllerContextTransitioning?) -> TimeInterval {
         return duration
@@ -30,21 +30,36 @@ class AnimationController: NSObject, UIViewControllerAnimatedTransitioning {
         guard let toNavVC = transitionContext.viewController(forKey: UITransitionContextToViewControllerKey) as? UINavigationController else {
             return
         }
-        let secondVC = toNavVC.viewControllers.first as! SecondViewController
+        guard let fromVC = transitionContext.viewController(forKey: UITransitionContextFromViewControllerKey) as? FirstViewController else {
+            return
+        }
+        guard let secondVC = toNavVC.viewControllers.first as? SecondViewController else {
+            return
+        }
+        let fromIV = fromVC.thumbImageView!
+        let animatableIV = RoundedImageView()
+        animatableIV.clipsToBounds = true
+        animatableIV.image = fromIV.image
+        animatableIV.contentMode = .scaleAspectFill
         let toView = toNavVC.view!
-        let imageView = secondVC.fullImageView!
+        
+        //Setup
         inView.addSubview(toView)
-        imageView.bounds = CGRect(x: 0, y: 0, width: 50, height: 50)
-        imageView.center = toView.center
+        animatableIV.frame = fromIV.frame
         toNavVC.navigationBar.alpha = 0
+        secondVC.view.alpha = 0
+        inView.addSubview(animatableIV)
+        
         UIView.animate(withDuration: duration, animations: {
-            imageView.frame = toView.frame
             toNavVC.navigationBar.alpha = 1
+            animatableIV.center = secondVC.view.center
+            animatableIV.bounds = CGRect(x: 0, y: 0, width: secondVC.view.frame.height, height: secondVC.view.frame.height)
         }) { (finished) in
+            animatableIV.removeFromSuperview()
+            secondVC.view.alpha = 1
             transitionContext.completeTransition(true)
         }
     }
-    
 }
 
 class InteractionController: NSObject, UIViewControllerInteractiveTransitioning {

@@ -18,6 +18,7 @@ class RoundedImageView : UIImageView {
         super.layoutSubviews()
     }
     
+    
     override func prepareForInterfaceBuilder() {
         updateLayer()
         super.prepareForInterfaceBuilder()
