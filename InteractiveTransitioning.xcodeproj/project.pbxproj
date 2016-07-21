@@ -28,6 +28,7 @@
 		09819EC51D400A9500E0363D /* RoundedImageView2.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = RoundedImageView2.swift; sourceTree = "<group>"; };
 		098F8A861D3940FA009F5383 /* InteractiveTransitioning.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = InteractiveTransitioning.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		098F8A891D3940FA009F5383 /* AppDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppDelegate.swift; sourceTree = "<group>"; };
+		09922B2F1D41678C00C07ACC /* MyPlayground.playground */ = {isa = PBXFileReference; lastKnownFileType = file.playground; path = MyPlayground.playground; sourceTree = "<group>"; };
 		09F04DC21D3D36A7001AB40F /* SecondViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = SecondViewController.swift; sourceTree = "<group>"; };
 		09F04DC71D3D457A001AB40F /* TransitioningDelegate.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = TransitioningDelegate.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
@@ -89,6 +90,7 @@
 		098F8A7D1D3940F9009F5383 = {
 			isa = PBXGroup;
 			children = (
+				09922B2F1D41678C00C07ACC /* MyPlayground.playground */,
 				098F8A881D3940FA009F5383 /* InteractiveTransitioning */,
 				098F8A871D3940FA009F5383 /* Products */,
 			);
