@@ -20,45 +20,38 @@ UIView.animate(withDuration: 3) {
 */
 
 // fill with yellow
-let rectShape = CAShapeLayer()
-let view = UIView(frame: CGRect(x:0,y:0,width: 50, height: 50))
+
+let containerView = UIView(frame: CGRect(x: 0, y: 0, width: 500, height: 500))
+containerView.backgroundColor = UIColor.red()
+PlaygroundPage.current.liveView = containerView
+let oldSide = 50
+let view = UIView(frame: CGRect(x:225,y:225, width: oldSide, height: oldSide))
 view.backgroundColor = UIColor.green()
-PlaygroundPage.current.liveView = view
-rectShape.fillColor = UIColor.yellow().cgColor
-
-let transaction = CATransaction()
-let bounds = CGRect(x: 0, y: 0, width: 50, height: 50)
-let startShape = UIBezierPath(roundedRect: bounds, cornerRadius: 50).cgPath
-let afterBounds = CGRect(x: 0, y: 0, width: 1000, height: 1000)
-let endShape = UIBezierPath(roundedRect:afterBounds , cornerRadius: 500).cgPath
-
-// set initial shape
-rectShape.path = startShape
-view.layer.addSublayer(rectShape)
-// 2
-//// animate the `path`
-//let animation = CABasicAnimation(keyPath: "path")
-//animation.toValue = endShape
-//animation.duration = 6
-//// 3
-//animation.timingFunction = CAMediaTimingFunction(name: kCAMediaTimingFunctionEaseOut) // animation curve is Ease Out
-//animation.fillMode = kCAFillModeBoth // keep to value after finishing
-//animation.isRemovedOnCompletion = false // don't remove after finishing
-//// 4
-//rectShape.add(animation, forKey: animation.keyPath)
+containerView.addSubview(view)
 
 
-CATransaction.begin()
-CATransaction.setAnimationDuration(6)
-CATransaction.setAnimationTimingFunction(CAMediaTimingFunction(name: kCAMediaTimingFunctionEaseInEaseOut))
-rectShape.path = endShape
-CATransaction.commit()
+let image = UIImage(named: "close-winter.jpg")
+let imageview = UIImageView(image: image)
+imageview.contentMode = .scaleAspectFill
+imageview.frame = view.bounds
+view.clipsToBounds = true
+view.addSubview(imageview)
 
+UIView.animate(withDuration: 5, delay: 0, options: .beginFromCurrentState, animations: {
+//    imageview.transform = CGAffineTransform(scaleX: 3, y: 3)
+    let newSide = 300
+    let offset = CGFloat((oldSide - newSide)/2)
+    var viewTransform = CGAffineTransform(translationX:offset, y: offset)
+    let scaling = CGFloat(newSide/oldSide)
+    viewTransform = CGAffineTransform(scaleX:scaling , y: scaling)
+//    viewTransform = viewTransform.concat()
+    view.transform = viewTransform
+}, completion: nil)
 
-UIView.animate(withDuration: 6) { 
-    view.frame = CGRect(x: 0, y: 0, width: 1000, height: 1000)
-}
-
+//UIView.animate(withDuration: 6) {
+//view.bounds = CGRect(x: 250, y: 250, width: 300, height: 300)
+//view.center = CGPoint(x: 250, y: 250)
+//}
 
 
 
