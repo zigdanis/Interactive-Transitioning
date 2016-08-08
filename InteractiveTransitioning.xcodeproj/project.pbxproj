@@ -7,6 +7,7 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		091E74A11D45288A00FBE6B3 /* RoundedView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 091E74A01D45288A00FBE6B3 /* RoundedView.swift */; };
 		092A26DF1D394C7C00EBB2EF /* Images.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 092A26D71D394C7C00EBB2EF /* Images.xcassets */; };
 		092A26E01D394C7C00EBB2EF /* LaunchScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 092A26D91D394C7C00EBB2EF /* LaunchScreen.storyboard */; };
 		092A26E11D394C7C00EBB2EF /* Main.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 092A26DB1D394C7C00EBB2EF /* Main.storyboard */; };
@@ -19,6 +20,7 @@
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
+		091E74A01D45288A00FBE6B3 /* RoundedView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = RoundedView.swift; sourceTree = "<group>"; };
 		092A26D71D394C7C00EBB2EF /* Images.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Images.xcassets; sourceTree = "<group>"; };
 		092A26DA1D394C7C00EBB2EF /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = Base; path = Base.lproj/LaunchScreen.storyboard; sourceTree = "<group>"; };
 		092A26DC1D394C7C00EBB2EF /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = Base; path = Base.lproj/Main.storyboard; sourceTree = "<group>"; };
@@ -44,6 +46,14 @@
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
+		091E749F1D4527CB00FBE6B3 /* Views */ = {
+			isa = PBXGroup;
+			children = (
+				091E74A01D45288A00FBE6B3 /* RoundedView.swift */,
+			);
+			path = Views;
+			sourceTree = "<group>";
+		};
 		092A26D61D394C7C00EBB2EF /* Resources */ = {
 			isa = PBXGroup;
 			children = (
@@ -108,6 +118,7 @@
 			isa = PBXGroup;
 			children = (
 				098F8A891D3940FA009F5383 /* AppDelegate.swift */,
+				091E749F1D4527CB00FBE6B3 /* Views */,
 				09F04DC61D3D4571001AB40F /* Classes */,
 				092A26E31D394D1A00EBB2EF /* Helpers */,
 				092A26E41D394D1A00EBB2EF /* ViewControllers */,
@@ -200,6 +211,7 @@
 			files = (
 				09F04DC81D3D457A001AB40F /* TransitioningDelegate.swift in Sources */,
 				09819EC61D400A9500E0363D /* RoundedImageView2.swift in Sources */,
+				091E74A11D45288A00FBE6B3 /* RoundedView.swift in Sources */,
 				09F04DC31D3D36A7001AB40F /* SecondViewController.swift in Sources */,
 				092A26E61D394D1A00EBB2EF /* FirstViewController.swift in Sources */,
 				098F8A8A1D3940FA009F5383 /* AppDelegate.swift in Sources */,
