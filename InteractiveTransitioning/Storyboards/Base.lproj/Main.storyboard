@@ -19,23 +19,18 @@
                         <rect key="frame" x="0.0" y="0.0" width="375" height="667"/>
                         <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                         <subviews>
-                            <imageView contentMode="scaleAspectFill" horizontalHuggingPriority="251" verticalHuggingPriority="251" image="close-winter" translatesAutoresizingMaskIntoConstraints="NO" id="iBg-th-z4V" customClass="RoundedImageView2" customModule="InteractiveTransitioning" customModuleProvider="target">
+                            <imageView clipsSubviews="YES" contentMode="scaleAspectFill" horizontalHuggingPriority="251" verticalHuggingPriority="251" image="close-winter" translatesAutoresizingMaskIntoConstraints="NO" id="iBg-th-z4V" customClass="RoundedImageView" customModule="InteractiveTransitioning" customModuleProvider="target">
                                 <color key="backgroundColor" white="0.0" alpha="0.0" colorSpace="calibratedWhite"/>
                                 <constraints>
-                                    <constraint firstAttribute="height" constant="150" id="Dd4-ai-I06"/>
-                                    <constraint firstAttribute="width" constant="150" id="MLh-Y8-hhf"/>
+                                    <constraint firstAttribute="height" constant="100" id="Dd4-ai-I06"/>
+                                    <constraint firstAttribute="width" constant="100" id="MLh-Y8-hhf"/>
                                 </constraints>
-                                <userDefinedRuntimeAttributes>
-                                    <userDefinedRuntimeAttribute type="number" keyPath="borderWidth">
-                                        <real key="value" value="1"/>
-                                    </userDefinedRuntimeAttribute>
-                                </userDefinedRuntimeAttributes>
                             </imageView>
                         </subviews>
                         <color key="backgroundColor" red="0.95686274510000002" green="0.95686274510000002" blue="0.95686274510000002" alpha="1" colorSpace="calibratedRGB"/>
                         <constraints>
-                            <constraint firstItem="iBg-th-z4V" firstAttribute="centerX" secondItem="8bC-Xf-vdC" secondAttribute="centerX" id="KKE-nL-S6g"/>
-                            <constraint firstItem="iBg-th-z4V" firstAttribute="top" secondItem="y3c-jy-aDJ" secondAttribute="bottom" constant="120" id="qVl-fM-ne5"/>
+                            <constraint firstAttribute="trailing" secondItem="iBg-th-z4V" secondAttribute="trailing" constant="10" id="ei4-gk-Qon"/>
+                            <constraint firstAttribute="bottom" secondItem="iBg-th-z4V" secondAttribute="bottom" constant="10" id="z8j-cw-1us"/>
                         </constraints>
                     </view>
                     <connections>

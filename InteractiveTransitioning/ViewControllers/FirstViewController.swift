@@ -10,17 +10,13 @@ import UIKit
 
 class FirstViewController: UIViewController {
 
-    @IBOutlet weak var thumbImageView: RoundedImageView2!
+    @IBOutlet weak var thumbImageView: RoundedImageView!
     let transitionController = TransitioningDelegate()
     var startPoint: CGPoint!
     
     override func viewDidLoad() {
         super.viewDidLoad()
         setupGestureRecognizers()
-//        let delayTime = DispatchTime.now() + .seconds(1)
-//        DispatchQueue.main.after(when: delayTime) {
-//            self.thumbImageView.applyRoundedMask()
-//        }
         startPoint = thumbImageView.center
     }
     

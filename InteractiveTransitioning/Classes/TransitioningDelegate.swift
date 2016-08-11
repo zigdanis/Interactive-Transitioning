@@ -19,7 +19,7 @@ class TransitioningDelegate: NSObject, UIViewControllerTransitioningDelegate {
 
 class AnimationController: NSObject, UIViewControllerAnimatedTransitioning {
     
-    let duration:TimeInterval = 10
+    let duration:TimeInterval = 0.2
     
     func transitionDuration(using transitionContext: UIViewControllerContextTransitioning?) -> TimeInterval {
         return duration
@@ -37,28 +37,60 @@ class AnimationController: NSObject, UIViewControllerAnimatedTransitioning {
             return
         }
         let fromIV = fromVC.thumbImageView!
-        let animatableIV = RoundedImageView()
-        animatableIV.clipsToBounds = true
-        animatableIV.image = fromIV.image
-        animatableIV.contentMode = .scaleAspectFill
         let toView = toNavVC.view!
         
         //Setup
         inView.addSubview(toView)
-        animatableIV.frame = fromIV.frame
         toNavVC.navigationBar.alpha = 0
         secondVC.view.alpha = 0
-        inView.addSubview(animatableIV)
         
-        UIView.animate(withDuration: duration, animations: {
-            toNavVC.navigationBar.alpha = 1
-            animatableIV.center = secondVC.view.center
-            animatableIV.bounds = CGRect(x: 0, y: 0, width: secondVC.view.frame.height, height: secondVC.view.frame.height)
-        }) { (finished) in
-            animatableIV.removeFromSuperview()
-            secondVC.view.alpha = 1
-            transitionContext.completeTransition(true)
+        for _ in 0...50 {
+            let animatableIV = RoundedCornersView(image: fromIV.image)
+            inView.addSubview(animatableIV)
+            animateConstraints(forView: animatableIV) { completed in
+                animatableIV.removeFromSuperview()
+                secondVC.view.alpha = 1
+                transitionContext.completeTransition(true)
+            }
         }
+    }
+    
+    func setupInitialConstraints(forView: UIImageView) -> [NSLayoutConstraint] {
+        let views = ["roundedView": forView]
+        let horizont = NSLayoutConstraint.constraints(withVisualFormat: "H:[roundedView(100)]-10-|", options:.alignAllBottom, metrics: nil, views: views)
+        let vertical = NSLayoutConstraint.constraints(withVisualFormat: "V:[roundedView(100)]-10-|", options:.alignAllBottom, metrics: nil, views: views)
+        let constraints = horizont + vertical
+        NSLayoutConstraint.activate(constraints)
+        return constraints
+    }
+    
+    func setupAfterAnimationConstraints(forView: UIImageView) -> [NSLayoutConstraint] {
+        let views = ["roundedView": forView]
+        let horizont = NSLayoutConstraint.constraints(withVisualFormat: "H:|-10-[roundedView(300)]", options:.alignAllBottom, metrics: nil, views: views)
+        let vertical = NSLayoutConstraint.constraints(withVisualFormat: "V:|-10-[roundedView(300)]", options:.alignAllBottom, metrics: nil, views: views)
+        let constraints = horizont + vertical
+        NSLayoutConstraint.activate(constraints)
+        return constraints
+    }
+    
+    func animateConstraints<T:UIImageView where T:AnimatableCircle>(forView: T, completion: ((Bool) -> ())?) {
+        let constraints = setupInitialConstraints(forView: forView)
+        forView.superview!.layoutIfNeeded()
+        NSLayoutConstraint.deactivate(constraints)
+        _ = setupAfterAnimationConstraints(forView: forView)
+        shrinkAnimate(forView: forView, completion: completion)
+    }
+    
+    
+    func shrinkAnimate<T:UIImageView where T:AnimatableCircle>(forView: T, completion: ((Bool) -> ())?) {
+        let options: UIViewAnimationOptions = [.autoreverse, .repeat, .curveEaseInOut]
+//        let options: UIViewAnimationOptions = []
+        UIView.animate(withDuration: duration, delay: 0, options: options, animations: {
+            let initialBounds = forView.bounds
+            forView.superview!.layoutIfNeeded()
+            let destinationBounds = forView.bounds
+            forView.animateFrameAndPathOfImageView(initial: initialBounds, destination: destinationBounds, duration: self.duration, options: options)
+        }, completion: completion)
     }
 }
 

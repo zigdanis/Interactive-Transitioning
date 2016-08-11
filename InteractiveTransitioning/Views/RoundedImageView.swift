@@ -8,18 +8,22 @@
 
 import UIKit
 
-public class RoundedView: UIImageView {
-    public var maskLayer = CAShapeLayer()
+class RoundedImageView: UIImageView, AnimatableCircle {
+    var maskLayer = CAShapeLayer()
     
-    override public init(image: UIImage?) {
+    override init(image: UIImage?) {
         super.init(image: image)
         clipsToBounds = true
         translatesAutoresizingMaskIntoConstraints = false
         contentMode = .scaleAspectFill
         addMaskLayer()
     }
-
-    required public init?(coder: NSCoder) {
+    
+    convenience init() {
+        self.init(image: nil)
+    }
+    
+    required init?(coder: NSCoder) {
         super.init(coder:coder)
         clipsToBounds = true
         translatesAutoresizingMaskIntoConstraints = false
@@ -27,10 +31,17 @@ public class RoundedView: UIImageView {
         addMaskLayer()
     }
     
-    override public func layoutSubviews() {
-        super.layoutSubviews()
+    override func layoutSubviews() {
         updateMaskLayer()
+        super.layoutSubviews()
     }
+    
+    override func prepareForInterfaceBuilder() {
+        updateMaskLayer()
+        super.prepareForInterfaceBuilder()
+    }
+    
+    //MARK: - Logic
     
     func updateMaskLayer() {
         let arcPath = CGPath(ellipseIn: bounds, transform: nil)
@@ -38,16 +49,16 @@ public class RoundedView: UIImageView {
         maskLayer.frame = bounds
     }
     
-    //MARK: public
-    
-    public func addMaskLayer() {
+    func addMaskLayer() {
         maskLayer.fillColor = UIColor.white().cgColor
         maskLayer.lineWidth = 0
         updateMaskLayer()
         layer.mask = maskLayer
     }
     
-    public func animateFrameAndPathOfImageView(initial: CGRect, destination: CGRect, duration: TimeInterval, options: UIViewAnimationOptions = []) {
+    //MARK: - Public
+    
+    func animateFrameAndPathOfImageView(initial: CGRect, destination: CGRect, duration: TimeInterval, options: UIViewAnimationOptions = []) {
         let boundsAnimation = CABasicAnimation(keyPath: "bounds")
         boundsAnimation.fromValue = NSValue(cgRect: initial)
         boundsAnimation.toValue = NSValue(cgRect: destination)
@@ -66,7 +77,7 @@ public class RoundedView: UIImageView {
         let group = CAAnimationGroup()
         group.duration = duration
         group.animations = [boundsAnimation, pathAnimation, positionAnimation]
-    
+        
         setupOptionsForAnimation(animation: group, options: options)
         
         maskLayer.path = toPath
@@ -74,6 +85,8 @@ public class RoundedView: UIImageView {
         maskLayer.position = toPosition
         maskLayer.add(group, forKey: "Resizing circle mask")
     }
+    
+    //MARK: - Helpers
     
     func setupOptionsForAnimation(animation: CAAnimationGroup, options: UIViewAnimationOptions) {
         var functionName: String?
@@ -97,4 +110,5 @@ public class RoundedView: UIImageView {
             animation.repeatCount = MAXFLOAT
         }
     }
+
 }
