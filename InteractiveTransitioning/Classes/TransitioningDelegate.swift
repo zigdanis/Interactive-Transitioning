@@ -19,7 +19,7 @@ class TransitioningDelegate: NSObject, UIViewControllerTransitioningDelegate {
 
 class AnimationController: NSObject, UIViewControllerAnimatedTransitioning {
     
-    let duration:TimeInterval = 0.2
+    let duration:TimeInterval = 5
     
     func transitionDuration(using transitionContext: UIViewControllerContextTransitioning?) -> TimeInterval {
         return duration
@@ -44,14 +44,12 @@ class AnimationController: NSObject, UIViewControllerAnimatedTransitioning {
         toNavVC.navigationBar.alpha = 0
         secondVC.view.alpha = 0
         
-        for _ in 0...50 {
-            let animatableIV = RoundedCornersView(image: fromIV.image)
-            inView.addSubview(animatableIV)
-            animateConstraints(forView: animatableIV) { completed in
-                animatableIV.removeFromSuperview()
-                secondVC.view.alpha = 1
-                transitionContext.completeTransition(true)
-            }
+        let animatableIV = RoundedImageView(image: fromIV.image)
+        inView.addSubview(animatableIV)
+        animateConstraints(forView: animatableIV) { completed in
+            animatableIV.removeFromSuperview()
+            secondVC.view.alpha = 1
+            transitionContext.completeTransition(true)
         }
     }
     
@@ -66,8 +64,8 @@ class AnimationController: NSObject, UIViewControllerAnimatedTransitioning {
     
     func setupAfterAnimationConstraints(forView: UIImageView) -> [NSLayoutConstraint] {
         let views = ["roundedView": forView]
-        let horizont = NSLayoutConstraint.constraints(withVisualFormat: "H:|-10-[roundedView(300)]", options:.alignAllBottom, metrics: nil, views: views)
-        let vertical = NSLayoutConstraint.constraints(withVisualFormat: "V:|-10-[roundedView(300)]", options:.alignAllBottom, metrics: nil, views: views)
+        let horizont = NSLayoutConstraint.constraints(withVisualFormat: "H:|[roundedView]|", options:.alignAllBottom, metrics: nil, views: views)
+        let vertical = NSLayoutConstraint.constraints(withVisualFormat: "V:|[roundedView]|", options:.alignAllBottom, metrics: nil, views: views)
         let constraints = horizont + vertical
         NSLayoutConstraint.activate(constraints)
         return constraints
@@ -83,8 +81,8 @@ class AnimationController: NSObject, UIViewControllerAnimatedTransitioning {
     
     
     func shrinkAnimate<T:UIImageView where T:AnimatableCircle>(forView: T, completion: ((Bool) -> ())?) {
-        let options: UIViewAnimationOptions = [.autoreverse, .repeat, .curveEaseInOut]
-//        let options: UIViewAnimationOptions = []
+//        let options: UIViewAnimationOptions = [.autoreverse, .repeat, .curveEaseInOut]
+        let options: UIViewAnimationOptions = []
         UIView.animate(withDuration: duration, delay: 0, options: options, animations: {
             let initialBounds = forView.bounds
             forView.superview!.layoutIfNeeded()

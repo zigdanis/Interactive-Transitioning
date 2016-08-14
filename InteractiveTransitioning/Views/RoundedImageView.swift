@@ -59,13 +59,16 @@ class RoundedImageView: UIImageView, AnimatableCircle {
     //MARK: - Public
     
     func animateFrameAndPathOfImageView(initial: CGRect, destination: CGRect, duration: TimeInterval, options: UIViewAnimationOptions = []) {
+        let minSide = min(destination.width, destination.height)
+        let squareDestination = CGRect(x: 0, y: 0, width: minSide, height: minSide)
+        
         let boundsAnimation = CABasicAnimation(keyPath: "bounds")
         boundsAnimation.fromValue = NSValue(cgRect: initial)
-        boundsAnimation.toValue = NSValue(cgRect: destination)
+        boundsAnimation.toValue = NSValue(cgRect: squareDestination)
         
         let pathAnimation = CABasicAnimation(keyPath: "path")
         pathAnimation.fromValue = CGPath(ellipseIn: initial, transform: nil)
-        let toPath = CGPath(ellipseIn: destination, transform: nil)
+        let toPath = CGPath(ellipseIn: squareDestination, transform: nil)
         pathAnimation.toValue = toPath
         
         let positionAnimation = CABasicAnimation(keyPath: "position")
@@ -81,7 +84,7 @@ class RoundedImageView: UIImageView, AnimatableCircle {
         setupOptionsForAnimation(animation: group, options: options)
         
         maskLayer.path = toPath
-        maskLayer.bounds = destination
+        maskLayer.bounds = squareDestination
         maskLayer.position = toPosition
         maskLayer.add(group, forKey: "Resizing circle mask")
     }
