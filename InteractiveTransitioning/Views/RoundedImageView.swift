@@ -50,7 +50,7 @@ class RoundedImageView: UIImageView, AnimatableCircle {
     }
     
     func addMaskLayer() {
-        maskLayer.fillColor = UIColor.white().cgColor
+        maskLayer.fillColor = UIColor.white.cgColor
         maskLayer.lineWidth = 0
         updateMaskLayer()
         layer.mask = maskLayer

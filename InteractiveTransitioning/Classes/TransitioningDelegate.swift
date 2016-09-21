@@ -7,6 +7,7 @@
 //
 
 import UIKit
+import Foundation
 
 class TransitioningDelegate: NSObject, UIViewControllerTransitioningDelegate {
     
@@ -26,11 +27,11 @@ class AnimationController: NSObject, UIViewControllerAnimatedTransitioning {
     }
     
     func animateTransition(using transitionContext: UIViewControllerContextTransitioning) {
-        let inView = transitionContext.containerView()
-        guard let toNavVC = transitionContext.viewController(forKey: UITransitionContextToViewControllerKey) as? UINavigationController else {
+        let inView = transitionContext.containerView
+        guard let toNavVC = transitionContext.viewController(forKey: UITransitionContextViewControllerKey.to) as? UINavigationController else {
             return
         }
-        guard let fromVC = transitionContext.viewController(forKey: UITransitionContextFromViewControllerKey) as? FirstViewController else {
+        guard let fromVC = transitionContext.viewController(forKey: UITransitionContextViewControllerKey.from) as? FirstViewController else {
             return
         }
         guard let secondVC = toNavVC.viewControllers.first as? SecondViewController else {
@@ -71,7 +72,7 @@ class AnimationController: NSObject, UIViewControllerAnimatedTransitioning {
         return constraints
     }
     
-    func animateConstraints<T:UIImageView where T:AnimatableCircle>(forView: T, completion: ((Bool) -> ())?) {
+    func animateConstraints<T:UIImageView>(forView: T, completion: ((Bool) -> ())?) where T:AnimatableCircle {
         let constraints = setupInitialConstraints(forView: forView)
         forView.superview!.layoutIfNeeded()
         NSLayoutConstraint.deactivate(constraints)
@@ -80,7 +81,7 @@ class AnimationController: NSObject, UIViewControllerAnimatedTransitioning {
     }
     
     
-    func shrinkAnimate<T:UIImageView where T:AnimatableCircle>(forView: T, completion: ((Bool) -> ())?) {
+    func shrinkAnimate<T:UIImageView>(forView: T, completion: ((Bool) -> ())?) where T:AnimatableCircle {
 //        let options: UIViewAnimationOptions = [.autoreverse, .repeat, .curveEaseInOut]
         let options: UIViewAnimationOptions = []
         UIView.animate(withDuration: duration, delay: 0, options: options, animations: {

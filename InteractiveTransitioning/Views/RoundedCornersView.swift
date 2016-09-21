@@ -15,7 +15,7 @@ public class RoundedCornersView: UIImageView, AnimatableCircle {
         clipsToBounds = true
         translatesAutoresizingMaskIntoConstraints = false
         contentMode = .scaleAspectFill
-        layer.borderColor = UIColor.white().cgColor
+        layer.borderColor = UIColor.white.cgColor
         layer.borderWidth = 2
         roundCorners()
     }
@@ -25,7 +25,7 @@ public class RoundedCornersView: UIImageView, AnimatableCircle {
         clipsToBounds = true
         translatesAutoresizingMaskIntoConstraints = false
         contentMode = .scaleAspectFill
-        layer.borderColor = UIColor.white().cgColor
+        layer.borderColor = UIColor.white.cgColor
         layer.borderWidth = 2
         roundCorners()
     }
