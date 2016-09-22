@@ -8,19 +8,26 @@
 
 import UIKit
 
-public class RoundedCornersView: UIImageView, AnimatableCircle {
+public class RoundedCornersView: UIView, AnimatableCircle {
     
-    override public init(image: UIImage?) {
-        super.init(image: image)
-        clipsToBounds = true
+    let imageView: UIImageView
+    var image: UIImage? {
+        get {
+            return imageView.image
+        }
+    }
+    
+    public init(image: UIImage?) {
+        imageView = UIImageView(image: image)
+        super.init(frame: CGRect.zero)
+        addSubview(imageView)
         translatesAutoresizingMaskIntoConstraints = false
-        contentMode = .scaleAspectFill
-        layer.borderColor = UIColor.white.cgColor
-        layer.borderWidth = 2
+        setupImageView()
         roundCorners()
     }
     
     required public init?(coder: NSCoder) {
+        self.imageView = UIImageView(image: nil)
         super.init(coder:coder)
         clipsToBounds = true
         translatesAutoresizingMaskIntoConstraints = false
@@ -35,10 +42,24 @@ public class RoundedCornersView: UIImageView, AnimatableCircle {
         roundCorners()
     }
     
+    func setupImageView() {
+        imageView.clipsToBounds = true
+        imageView.translatesAutoresizingMaskIntoConstraints = false
+        imageView.contentMode = .scaleAspectFill
+        imageView.layer.borderColor = UIColor.white.cgColor
+        imageView.layer.borderWidth = 2
+        
+        let views = ["imageView": imageView]
+        let horizont = NSLayoutConstraint.constraints(withVisualFormat: "H:|[imageView]|@20", options:.alignAllBottom, metrics: nil, views: views)
+        let vertical = NSLayoutConstraint.constraints(withVisualFormat: "V:|[imageView]|@20", options:.alignAllBottom, metrics: nil, views: views)
+        let constraints = horizont + vertical
+        NSLayoutConstraint.activate(constraints)
+    }
+    
     //MARK: public
     
     public func roundCorners() {
-        layer.cornerRadius = bounds.size.width / 2
+        imageView.layer.cornerRadius = bounds.size.width / 2
     }
     
     public func animateFrameAndPathOfImageView(initial: CGRect, destination: CGRect, duration: TimeInterval, options: UIViewAnimationOptions = []) {

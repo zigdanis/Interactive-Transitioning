@@ -10,5 +10,6 @@ import Foundation
 import UIKit
 
 protocol AnimatableCircle {
+    var image: UIImage? { get }
     func animateFrameAndPathOfImageView(initial: CGRect, destination: CGRect, duration: TimeInterval, options: UIViewAnimationOptions)
 }

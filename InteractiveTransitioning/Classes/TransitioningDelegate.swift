@@ -45,7 +45,7 @@ class AnimationController: NSObject, UIViewControllerAnimatedTransitioning {
         toNavVC.navigationBar.alpha = 0
         secondVC.view.alpha = 0
         
-        let animatableIV = RoundedImageView(image: fromIV.image)
+        let animatableIV = RoundedCornersView(image: fromIV.image)
         inView.addSubview(animatableIV)
         animateConstraints(forView: animatableIV) { completed in
             animatableIV.removeFromSuperview()
@@ -54,7 +54,7 @@ class AnimationController: NSObject, UIViewControllerAnimatedTransitioning {
         }
     }
     
-    func setupInitialConstraints(forView: UIImageView) -> [NSLayoutConstraint] {
+    func setupInitialConstraints(forView: UIView) -> [NSLayoutConstraint] {
         let views = ["roundedView": forView]
         let horizont = NSLayoutConstraint.constraints(withVisualFormat: "H:[roundedView(100)]-10-|", options:.alignAllBottom, metrics: nil, views: views)
         let vertical = NSLayoutConstraint.constraints(withVisualFormat: "V:[roundedView(100)]-10-|", options:.alignAllBottom, metrics: nil, views: views)
@@ -63,7 +63,7 @@ class AnimationController: NSObject, UIViewControllerAnimatedTransitioning {
         return constraints
     }
     
-    func setupAfterAnimationConstraints(forView: UIImageView) -> [NSLayoutConstraint] {
+    func setupAfterAnimationConstraints(forView: UIView) -> [NSLayoutConstraint] {
         let views = ["roundedView": forView]
         let horizont = NSLayoutConstraint.constraints(withVisualFormat: "H:|[roundedView]|", options:.alignAllBottom, metrics: nil, views: views)
         let vertical = NSLayoutConstraint.constraints(withVisualFormat: "V:|[roundedView]|", options:.alignAllBottom, metrics: nil, views: views)
@@ -72,7 +72,7 @@ class AnimationController: NSObject, UIViewControllerAnimatedTransitioning {
         return constraints
     }
     
-    func animateConstraints<T:UIImageView>(forView: T, completion: ((Bool) -> ())?) where T:AnimatableCircle {
+    func animateConstraints<T:UIView>(forView: T, completion: ((Bool) -> ())?) where T:AnimatableCircle {
         let constraints = setupInitialConstraints(forView: forView)
         forView.superview!.layoutIfNeeded()
         NSLayoutConstraint.deactivate(constraints)
@@ -81,9 +81,9 @@ class AnimationController: NSObject, UIViewControllerAnimatedTransitioning {
     }
     
     
-    func shrinkAnimate<T:UIImageView>(forView: T, completion: ((Bool) -> ())?) where T:AnimatableCircle {
-//        let options: UIViewAnimationOptions = [.autoreverse, .repeat, .curveEaseInOut]
-        let options: UIViewAnimationOptions = []
+    func shrinkAnimate<T:UIView>(forView: T, completion: ((Bool) -> ())?) where T:AnimatableCircle {
+        let options: UIViewAnimationOptions = [.autoreverse, .repeat, .curveEaseInOut]
+//        let options: UIViewAnimationOptions = []
         UIView.animate(withDuration: duration, delay: 0, options: options, animations: {
             let initialBounds = forView.bounds
             forView.superview!.layoutIfNeeded()
