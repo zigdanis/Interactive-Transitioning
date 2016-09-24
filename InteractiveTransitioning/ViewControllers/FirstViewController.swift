@@ -10,7 +10,7 @@ import UIKit
 
 class FirstViewController: UIViewController {
 
-    @IBOutlet weak var thumbImageView: RoundedCornersView!
+    @IBOutlet weak var thumbImageView: RoundedImageView!
     let transitionController = TransitioningDelegate()
     var startPoint: CGPoint!
     

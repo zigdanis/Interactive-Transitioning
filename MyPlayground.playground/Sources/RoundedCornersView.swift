@@ -8,25 +8,30 @@
 
 import UIKit
 
-public class RoundedCornersView: UIImageView {
+public class RoundedCornersView: UIView, AnimatableCircle {
     
-    override public init(image: UIImage?) {
-        super.init(image: image)
-        clipsToBounds = true
-        translatesAutoresizingMaskIntoConstraints = false
-        contentMode = .scaleAspectFill
-        layer.borderColor = UIColor.white().cgColor
-        layer.borderWidth = 2
+    let imageView: UIImageView
+    var image: UIImage? {
+        get {
+            return imageView.image
+        }
+    }
+    
+    public init(image: UIImage?) {
+        imageView = UIImageView(image: image)
+        super.init(frame: CGRect.zero)
+        addSubview(imageView)
+        setupView()
+        setupImageView()
         roundCorners()
     }
     
     required public init?(coder: NSCoder) {
+        self.imageView = UIImageView(image: UIImage(named: "close-winter"))
         super.init(coder:coder)
-        clipsToBounds = true
-        translatesAutoresizingMaskIntoConstraints = false
-        contentMode = .scaleAspectFill
-        layer.borderColor = UIColor.white().cgColor
-        layer.borderWidth = 2
+        addSubview(imageView)
+        setupView()
+        setupImageView()
         roundCorners()
     }
     
@@ -35,23 +40,51 @@ public class RoundedCornersView: UIImageView {
         roundCorners()
     }
     
+    func setupView() {
+        clipsToBounds = true
+        translatesAutoresizingMaskIntoConstraints = false
+        backgroundColor = UIColor.clear
+    }
+    
+    func setupImageView() {
+        imageView.clipsToBounds = true
+        imageView.translatesAutoresizingMaskIntoConstraints = false
+        imageView.contentMode = .scaleAspectFill
+        imageView.layer.borderColor = UIColor.white.cgColor
+        imageView.layer.borderWidth = 2
+        
+        let aspectRationConstraint = NSLayoutConstraint(item: imageView, attribute: .width, relatedBy: .equal, toItem: imageView, attribute: .height, multiplier: 1, constant: 0)
+        var constraints = [ imageView.widthAnchor.constraint(lessThanOrEqualTo: widthAnchor),
+                            imageView.heightAnchor.constraint(lessThanOrEqualTo: heightAnchor),
+                            imageView.centerXAnchor.constraint(equalTo: centerXAnchor),
+                            imageView.centerYAnchor.constraint(equalTo: centerYAnchor) ]
+        for c in constraints {
+            c.priority = 900
+        }
+        constraints += [aspectRationConstraint]
+        NSLayoutConstraint.activate(constraints)
+    }
+    
     //MARK: public
     
     public func roundCorners() {
-        layer.cornerRadius = bounds.size.width / 2
+        imageView.layer.cornerRadius = bounds.size.width / 2
     }
     
     public func animateFrameAndPathOfImageView(initial: CGRect, destination: CGRect, duration: TimeInterval, options: UIViewAnimationOptions = []) {
         
+        let minInitialSide = min(initial.width, initial.height)
+        let minDestinationSide = min(destination.width, destination.height)
+        
         let cornersAnimation = CABasicAnimation(keyPath: "cornerRadius")
-        cornersAnimation.fromValue = initial.size.width / 2
-        cornersAnimation.toValue = destination.size.width / 2
+        cornersAnimation.fromValue = minInitialSide / 2
+        cornersAnimation.toValue = minDestinationSide / 2
         cornersAnimation.duration = duration
         
         setupOptionsForAnimation(animation: cornersAnimation, options: options)
         
-        layer.cornerRadius = destination.size.width / 2
-        layer.add(cornersAnimation, forKey: "Resizing circle corners")
+        imageView.layer.cornerRadius = minDestinationSide / 2
+        imageView.layer.add(cornersAnimation, forKey: "Resizing circle corners")
     }
     
     func setupOptionsForAnimation(animation: CAAnimation, options: UIViewAnimationOptions) {

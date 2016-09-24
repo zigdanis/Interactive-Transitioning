@@ -41,7 +41,7 @@ public class RoundedView: UIImageView {
     //MARK: public
     
     public func addMaskLayer() {
-        maskLayer.fillColor = UIColor.white().cgColor
+        maskLayer.fillColor = UIColor.white.cgColor
         maskLayer.lineWidth = 0
         updateMaskLayer()
         layer.mask = maskLayer

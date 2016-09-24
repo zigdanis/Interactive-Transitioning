@@ -2,8 +2,6 @@
 <document type="com.apple.InterfaceBuilder3.CocoaTouch.Storyboard.XIB" version="3.0" toolsVersion="11201" systemVersion="15G1004" targetRuntime="iOS.CocoaTouch" propertyAccessControl="none" useAutolayout="YES" useTraitCollections="YES" colorMatched="YES" initialViewController="BYZ-38-t0r">
     <dependencies>
         <plugIn identifier="com.apple.InterfaceBuilder.IBCocoaTouchPlugin" version="11161"/>
-        <capability name="Aspect ratio constraints" minToolsVersion="5.1"/>
-        <capability name="Constraints to layout margins" minToolsVersion="6.0"/>
         <capability name="documents saved in the Xcode 8 format" minToolsVersion="8.0"/>
     </dependencies>
     <scenes>
@@ -19,33 +17,21 @@
                         <rect key="frame" x="0.0" y="0.0" width="375" height="667"/>
                         <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                         <subviews>
-                            <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="JWX-uy-4Ce" customClass="RoundedCornersView" customModule="InteractiveTransitioning" customModuleProvider="target">
-                                <color key="backgroundColor" white="1" alpha="1" colorSpace="calibratedWhite"/>
+                            <imageView clipsSubviews="YES" contentMode="scaleAspectFill" horizontalHuggingPriority="251" verticalHuggingPriority="251" image="close-winter" translatesAutoresizingMaskIntoConstraints="NO" id="W2n-qf-87e" customClass="RoundedImageView" customModule="InteractiveTransitioning" customModuleProvider="target">
                                 <constraints>
-                                    <constraint firstAttribute="height" constant="100" id="2Rk-L4-Ktl"/>
-                                    <constraint firstAttribute="width" constant="100" id="2ql-3Z-hFT"/>
+                                    <constraint firstAttribute="height" constant="100" id="SHn-NT-Ucz"/>
+                                    <constraint firstAttribute="width" constant="100" id="ek2-Iv-Qz2"/>
                                 </constraints>
-                            </view>
-                            <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="Labelasdfsdf asdfsdfasdf" textAlignment="natural" lineBreakMode="wordWrap" numberOfLines="0" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="N8F-Ks-BaH">
-                                <constraints>
-                                    <constraint firstAttribute="height" constant="21" id="tar-Ju-GZW"/>
-                                </constraints>
-                                <fontDescription key="fontDescription" type="system" pointSize="17"/>
-                                <nil key="textColor"/>
-                                <nil key="highlightedColor"/>
-                            </label>
+                            </imageView>
                         </subviews>
                         <color key="backgroundColor" red="0.0" green="1" blue="1" alpha="1" colorSpace="calibratedRGB"/>
                         <constraints>
-                            <constraint firstItem="N8F-Ks-BaH" firstAttribute="leading" secondItem="8bC-Xf-vdC" secondAttribute="leadingMargin" constant="167" id="7Zv-E0-81U"/>
-                            <constraint firstAttribute="trailingMargin" secondItem="N8F-Ks-BaH" secondAttribute="trailing" constant="100" id="NKr-TU-pQ1"/>
-                            <constraint firstItem="wfy-db-euE" firstAttribute="top" secondItem="JWX-uy-4Ce" secondAttribute="bottom" constant="10" id="aXH-hj-xo4"/>
-                            <constraint firstAttribute="trailing" secondItem="JWX-uy-4Ce" secondAttribute="trailing" constant="10" id="qek-9Q-T3b"/>
-                            <constraint firstItem="N8F-Ks-BaH" firstAttribute="top" secondItem="y3c-jy-aDJ" secondAttribute="bottom" constant="303" id="spD-RR-mcA"/>
+                            <constraint firstItem="wfy-db-euE" firstAttribute="top" secondItem="W2n-qf-87e" secondAttribute="bottom" constant="10" id="BZP-9V-QBx"/>
+                            <constraint firstAttribute="trailing" secondItem="W2n-qf-87e" secondAttribute="trailing" constant="10" id="UHx-jc-CUV"/>
                         </constraints>
                     </view>
                     <connections>
-                        <outlet property="thumbImageView" destination="JWX-uy-4Ce" id="4ht-93-JjI"/>
+                        <outlet property="thumbImageView" destination="W2n-qf-87e" id="B4t-pR-vjR"/>
                     </connections>
                 </viewController>
                 <placeholder placeholderIdentifier="IBFirstResponder" id="dkx-z0-nzr" sceneMemberID="firstResponder"/>
@@ -64,24 +50,14 @@
                         <rect key="frame" x="0.0" y="0.0" width="375" height="667"/>
                         <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                         <subviews>
-                            <imageView clipsSubviews="YES" userInteractionEnabled="NO" tag="13" contentMode="scaleAspectFill" horizontalHuggingPriority="251" verticalHuggingPriority="251" image="close-winter" translatesAutoresizingMaskIntoConstraints="NO" id="Vdd-0y-Deo">
-                                <constraints>
-                                    <constraint firstAttribute="width" secondItem="Vdd-0y-Deo" secondAttribute="height" id="nyj-xT-JQ6"/>
-                                </constraints>
-                                <userDefinedRuntimeAttributes>
-                                    <userDefinedRuntimeAttribute type="number" keyPath="borderWidth">
-                                        <real key="value" value="1"/>
-                                    </userDefinedRuntimeAttribute>
-                                </userDefinedRuntimeAttributes>
-                            </imageView>
+                            <imageView clipsSubviews="YES" userInteractionEnabled="NO" tag="13" contentMode="scaleAspectFill" horizontalHuggingPriority="251" verticalHuggingPriority="251" image="close-winter" translatesAutoresizingMaskIntoConstraints="NO" id="Vdd-0y-Deo"/>
                         </subviews>
                         <color key="backgroundColor" white="1" alpha="1" colorSpace="calibratedWhite"/>
                         <constraints>
-                            <constraint firstItem="Vdd-0y-Deo" firstAttribute="leading" secondItem="6Ul-1m-fWW" secondAttribute="leading" priority="800" id="0F6-52-KUh"/>
-                            <constraint firstItem="Vdd-0y-Deo" firstAttribute="top" secondItem="6Ul-1m-fWW" secondAttribute="top" id="238-7O-SAg"/>
-                            <constraint firstAttribute="trailing" secondItem="Vdd-0y-Deo" secondAttribute="trailing" priority="800" id="TFm-i5-iby"/>
-                            <constraint firstItem="r5t-cK-Q4q" firstAttribute="top" secondItem="Vdd-0y-Deo" secondAttribute="bottom" id="Z7j-4X-AY1"/>
-                            <constraint firstItem="Vdd-0y-Deo" firstAttribute="centerX" secondItem="6Ul-1m-fWW" secondAttribute="centerX" id="zKd-0r-pzT"/>
+                            <constraint firstItem="Vdd-0y-Deo" firstAttribute="leading" secondItem="6Ul-1m-fWW" secondAttribute="leading" id="1Cs-6M-Xh1"/>
+                            <constraint firstItem="Vdd-0y-Deo" firstAttribute="top" secondItem="6Ul-1m-fWW" secondAttribute="top" id="800-ST-RsE"/>
+                            <constraint firstItem="r5t-cK-Q4q" firstAttribute="top" secondItem="Vdd-0y-Deo" secondAttribute="bottom" id="8yt-FE-ivY"/>
+                            <constraint firstAttribute="trailing" secondItem="Vdd-0y-Deo" secondAttribute="trailing" id="LUB-tt-yCM"/>
                         </constraints>
                     </view>
                     <nil key="simulatedTopBarMetrics"/>
@@ -91,7 +67,7 @@
                 </viewController>
                 <placeholder placeholderIdentifier="IBFirstResponder" id="IIZ-Hg-q5I" userLabel="First Responder" sceneMemberID="firstResponder"/>
             </objects>
-            <point key="canvasLocation" x="-239" y="-114"/>
+            <point key="canvasLocation" x="-239.19999999999999" y="-114.69265367316342"/>
         </scene>
     </scenes>
     <resources>

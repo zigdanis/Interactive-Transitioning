@@ -8,68 +8,80 @@
 
 import UIKit
 
+@IBDesignable
 class RoundedImageView: UIImageView, AnimatableCircle {
-    var maskLayer = CAShapeLayer()
-    
-    override init(image: UIImage?) {
-        super.init(image: image)
-        clipsToBounds = true
-        translatesAutoresizingMaskIntoConstraints = false
-        contentMode = .scaleAspectFill
-        addMaskLayer()
-    }
+    let maskLayer = CAShapeLayer()
+    let borderCircle = CAShapeLayer()
     
     convenience init() {
         self.init(image: nil)
     }
     
+    override convenience init(frame: CGRect) {
+        self.init(image: UIImage(named: "close-winter"))
+    }
+    
+    override init(image: UIImage?) {
+        super.init(image: image)
+        setupViewBehaviour()
+        addRoundingLayers()
+    }
+    
     required init?(coder: NSCoder) {
         super.init(coder:coder)
+        setupViewBehaviour()
+        addRoundingLayers()
+    }
+    
+    func setupViewBehaviour() {
         clipsToBounds = true
         translatesAutoresizingMaskIntoConstraints = false
         contentMode = .scaleAspectFill
-        addMaskLayer()
     }
     
     override func layoutSubviews() {
-        updateMaskLayer()
         super.layoutSubviews()
+        updateRoundedLayers()
     }
     
     override func prepareForInterfaceBuilder() {
-        updateMaskLayer()
+        updateRoundedLayers()
         super.prepareForInterfaceBuilder()
     }
     
     //MARK: - Logic
     
-    func updateMaskLayer() {
+    func addRoundingLayers() {
+        borderCircle.borderColor = UIColor.white.cgColor
+        borderCircle.borderWidth = 2
+        layer.addSublayer(borderCircle)
+        
+        maskLayer.fillColor = UIColor.white.cgColor
+        maskLayer.lineWidth = 0
+        layer.mask = maskLayer
+
+        updateRoundedLayers()
+    }
+    
+    func updateRoundedLayers() {
+        borderCircle.frame = bounds
+        borderCircle.cornerRadius = bounds.width / 2
+        
         let arcPath = CGPath(ellipseIn: bounds, transform: nil)
         maskLayer.path = arcPath
         maskLayer.frame = bounds
     }
     
-    func addMaskLayer() {
-        maskLayer.fillColor = UIColor.white.cgColor
-        maskLayer.lineWidth = 0
-        updateMaskLayer()
-        layer.mask = maskLayer
-    }
-    
     //MARK: - Public
     
     func animateFrameAndPathOfImageView(initial: CGRect, destination: CGRect, duration: TimeInterval, options: UIViewAnimationOptions = []) {
-        let minSide = min(destination.width, destination.height)
-        let squareDestination = CGRect(x: 0, y: 0, width: minSide, height: minSide)
+        let minInitialSide = min(initial.width, initial.height)
+        let minDestinationSide = min(destination.width, destination.height)
+        let squareDestination = CGRect(x: 0, y: 0, width: minDestinationSide, height: minDestinationSide)
         
         let boundsAnimation = CABasicAnimation(keyPath: "bounds")
         boundsAnimation.fromValue = NSValue(cgRect: initial)
         boundsAnimation.toValue = NSValue(cgRect: squareDestination)
-        
-        let pathAnimation = CABasicAnimation(keyPath: "path")
-        pathAnimation.fromValue = CGPath(ellipseIn: initial, transform: nil)
-        let toPath = CGPath(ellipseIn: squareDestination, transform: nil)
-        pathAnimation.toValue = toPath
         
         let positionAnimation = CABasicAnimation(keyPath: "position")
         let fromPosition = CGPoint(x: initial.midX, y: initial.midY)
@@ -77,16 +89,31 @@ class RoundedImageView: UIImageView, AnimatableCircle {
         positionAnimation.fromValue = NSValue(cgPoint: fromPosition)
         positionAnimation.toValue = NSValue(cgPoint: toPosition)
         
-        let group = CAAnimationGroup()
-        group.duration = duration
-        group.animations = [boundsAnimation, pathAnimation, positionAnimation]
+        let cornersAnimation = CABasicAnimation(keyPath: "cornerRadius")
+        cornersAnimation.fromValue = minInitialSide / 2
+        cornersAnimation.toValue = minDestinationSide / 2
         
-        setupOptionsForAnimation(animation: group, options: options)
+        let pathAnimation = CABasicAnimation(keyPath: "path")
+        pathAnimation.fromValue = CGPath(ellipseIn: initial, transform: nil)
+        let toPath = CGPath(ellipseIn: squareDestination, transform: nil)
+        pathAnimation.toValue = toPath
         
+        let borderGroup = CAAnimationGroup()
+        borderGroup.duration = duration
+        borderGroup.animations = [boundsAnimation, positionAnimation, cornersAnimation]
+        setupOptionsForAnimation(animation: borderGroup, options: options)
+        
+        let maskGroup = CAAnimationGroup()
+        maskGroup.duration = duration
+        maskGroup.animations = [boundsAnimation, positionAnimation, pathAnimation]
+        setupOptionsForAnimation(animation: maskGroup, options: options)
+        
+        borderCircle.cornerRadius = minDestinationSide / 2
+        borderCircle.add(borderGroup, forKey: "Resizing border")
         maskLayer.path = toPath
         maskLayer.bounds = squareDestination
         maskLayer.position = toPosition
-        maskLayer.add(group, forKey: "Resizing circle mask")
+        maskLayer.add(maskGroup, forKey: "Resizing circle mask")
     }
     
     //MARK: - Helpers

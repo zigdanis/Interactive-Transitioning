@@ -45,7 +45,7 @@ class AnimationController: NSObject, UIViewControllerAnimatedTransitioning {
         toNavVC.navigationBar.alpha = 0
         secondVC.view.alpha = 0
         
-        let animatableIV = RoundedCornersView(image: fromIV.image)
+        let animatableIV = RoundedImageView(image: fromIV.image)
         inView.addSubview(animatableIV)
         animateConstraints(forView: animatableIV) { completed in
             animatableIV.removeFromSuperview()
@@ -82,8 +82,8 @@ class AnimationController: NSObject, UIViewControllerAnimatedTransitioning {
     
     
     func shrinkAnimate<T:UIView>(forView: T, completion: ((Bool) -> ())?) where T:AnimatableCircle {
-        let options: UIViewAnimationOptions = [.autoreverse, .repeat, .curveEaseInOut]
-//        let options: UIViewAnimationOptions = []
+//        let options: UIViewAnimationOptions = [.autoreverse, .repeat, .curveEaseInOut]
+        let options: UIViewAnimationOptions = []
         UIView.animate(withDuration: duration, delay: 0, options: options, animations: {
             let initialBounds = forView.bounds
             forView.superview!.layoutIfNeeded()

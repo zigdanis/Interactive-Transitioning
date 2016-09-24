@@ -4,14 +4,11 @@ import UIKit
 import PlaygroundSupport
 
 let containerView = UIView(frame: CGRect(x: 0, y: 0, width: 500, height: 500))
-containerView.backgroundColor = UIColor.red()
+containerView.backgroundColor = UIColor.red
 PlaygroundPage.current.liveView = containerView
 
 
 let duration = 3.0
-
-//let roundedView = RoundedView(image: UIImage(named: "close-winter.jpg"))
-//containerView.addSubview(roundedView)
 
 let roundedView = RoundedCornersView(image: UIImage(named: "close-winter.jpg"))
 containerView.addSubview(roundedView)
@@ -19,7 +16,7 @@ containerView.addSubview(roundedView)
 func setupInitialConstraints() -> [NSLayoutConstraint] {
     let views = ["roundedView": roundedView]
     let horizont = NSLayoutConstraint.constraints(withVisualFormat: "H:[roundedView(100)]-10-|", options:.alignAllBottom, metrics: nil, views: views)
-    let vertical = NSLayoutConstraint.constraints(withVisualFormat: "V:[roundedView(100)]-10-|", options:.alignAllBottom, metrics: nil, views: views)
+    let vertical = NSLayoutConstraint.constraints(withVisualFormat: "V:[roundedView(200)]-10-|", options:.alignAllBottom, metrics: nil, views: views)
     let constraints = horizont + vertical
     NSLayoutConstraint.activate(constraints)
     return constraints
@@ -27,7 +24,7 @@ func setupInitialConstraints() -> [NSLayoutConstraint] {
 
 func setupAfterAnimationConstraints() -> [NSLayoutConstraint] {
     let views = ["roundedView": roundedView]
-    let horizont = NSLayoutConstraint.constraints(withVisualFormat: "H:|-10-[roundedView(300)]", options:.alignAllBottom, metrics: nil, views: views)
+    let horizont = NSLayoutConstraint.constraints(withVisualFormat: "H:|-10-[roundedView(600)]", options:.alignAllBottom, metrics: nil, views: views)
     let vertical = NSLayoutConstraint.constraints(withVisualFormat: "V:|-10-[roundedView(300)]", options:.alignAllBottom, metrics: nil, views: views)
     let constraints = horizont + vertical
     NSLayoutConstraint.activate(constraints)
@@ -35,10 +32,10 @@ func setupAfterAnimationConstraints() -> [NSLayoutConstraint] {
 }
 
 func animateConstraints() {
-    let constraints = setupAfterAnimationConstraints()
+    let constraints = setupInitialConstraints()
     containerView.layoutIfNeeded()
     NSLayoutConstraint.deactivate(constraints)
-    setupInitialConstraints()
+    setupAfterAnimationConstraints()
     shrinkAnimate()
 }
 
@@ -53,7 +50,6 @@ func shrinkAnimate() {
         roundedView.animateFrameAndPathOfImageView(initial: initialBounds, destination: destinationBounds, duration: duration, options: options)
     })
 }
-
 
 
 animateConstraints()
