@@ -20,7 +20,7 @@ class TransitioningDelegate: NSObject, UIViewControllerTransitioningDelegate {
 
 class AnimationController: NSObject, UIViewControllerAnimatedTransitioning {
     
-    let duration:TimeInterval = 5
+    let duration:TimeInterval = 3
     
     func transitionDuration(using transitionContext: UIViewControllerContextTransitioning?) -> TimeInterval {
         return duration
@@ -47,18 +47,18 @@ class AnimationController: NSObject, UIViewControllerAnimatedTransitioning {
         
         let animatableCopy = RoundedImageView(image: fromIV.image)
         inView.addSubview(animatableCopy)
-        animateConstraints(forView: animatableCopy) { completed in
+        animateConstraints(forView: animatableCopy, fromView:fromIV) { completed in
             animatableCopy.removeFromSuperview()
             secondVC.view.alpha = 1
             transitionContext.completeTransition(true)
         }
     }
     
-    func setupInitialConstraints(forView: UIView) -> [NSLayoutConstraint] {
-        let views = ["roundedView": forView]
-        let horizont = NSLayoutConstraint.constraints(withVisualFormat: "H:[roundedView(200)]-10-|", options:.alignAllBottom, metrics: nil, views: views)
-        let vertical = NSLayoutConstraint.constraints(withVisualFormat: "V:[roundedView(100)]-10-|", options:.alignAllBottom, metrics: nil, views: views)
-        let constraints = horizont + vertical
+    func setupInitialConstraints(forView: UIView, fromView: UIView) -> [NSLayoutConstraint] {
+        let constraints = [ forView.topAnchor.constraint(equalTo: fromView.topAnchor),
+                            forView.leadingAnchor.constraint(equalTo: fromView.leadingAnchor),
+                            forView.trailingAnchor.constraint(equalTo: fromView.trailingAnchor),
+                            forView.bottomAnchor.constraint(equalTo: fromView.bottomAnchor) ]
         NSLayoutConstraint.activate(constraints)
         return constraints
     }
@@ -72,8 +72,8 @@ class AnimationController: NSObject, UIViewControllerAnimatedTransitioning {
         return constraints
     }
     
-    func animateConstraints<T:UIView>(forView: T, completion: ((Bool) -> ())?) where T:AnimatableCircle {
-        let constraints = setupInitialConstraints(forView: forView)
+    func animateConstraints<T:UIView>(forView: T, fromView: UIView, completion: ((Bool) -> ())?) where T:AnimatableCircle {
+        let constraints = setupInitialConstraints(forView: forView, fromView: fromView)
         forView.superview!.layoutIfNeeded()
         NSLayoutConstraint.deactivate(constraints)
         _ = setupAfterAnimationConstraints(forView: forView)
