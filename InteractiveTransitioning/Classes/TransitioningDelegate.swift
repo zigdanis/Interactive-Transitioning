@@ -45,10 +45,10 @@ class AnimationController: NSObject, UIViewControllerAnimatedTransitioning {
         toNavVC.navigationBar.alpha = 0
         secondVC.view.alpha = 0
         
-        let animatableIV = RoundedImageView(image: fromIV.image)
-        inView.addSubview(animatableIV)
-        animateConstraints(forView: animatableIV) { completed in
-            animatableIV.removeFromSuperview()
+        let animatableCopy = RoundedImageView(image: fromIV.image)
+        inView.addSubview(animatableCopy)
+        animateConstraints(forView: animatableCopy) { completed in
+            animatableCopy.removeFromSuperview()
             secondVC.view.alpha = 1
             transitionContext.completeTransition(true)
         }
@@ -56,7 +56,7 @@ class AnimationController: NSObject, UIViewControllerAnimatedTransitioning {
     
     func setupInitialConstraints(forView: UIView) -> [NSLayoutConstraint] {
         let views = ["roundedView": forView]
-        let horizont = NSLayoutConstraint.constraints(withVisualFormat: "H:[roundedView(100)]-10-|", options:.alignAllBottom, metrics: nil, views: views)
+        let horizont = NSLayoutConstraint.constraints(withVisualFormat: "H:[roundedView(200)]-10-|", options:.alignAllBottom, metrics: nil, views: views)
         let vertical = NSLayoutConstraint.constraints(withVisualFormat: "V:[roundedView(100)]-10-|", options:.alignAllBottom, metrics: nil, views: views)
         let constraints = horizont + vertical
         NSLayoutConstraint.activate(constraints)

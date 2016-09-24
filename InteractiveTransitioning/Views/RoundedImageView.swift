@@ -40,8 +40,8 @@ class RoundedImageView: UIImageView, AnimatableCircle {
     }
     
     override func layoutSubviews() {
-        super.layoutSubviews()
         updateRoundedLayers()
+        super.layoutSubviews()
     }
     
     override func prepareForInterfaceBuilder() {
@@ -64,10 +64,14 @@ class RoundedImageView: UIImageView, AnimatableCircle {
     }
     
     func updateRoundedLayers() {
-        borderCircle.frame = bounds
-        borderCircle.cornerRadius = bounds.width / 2
+        let minSide = min(bounds.width, bounds.height)
+        let x = bounds.midX - minSide/2
+        let y = bounds.midY - minSide/2
+        let squareInCenter = CGRect(x: x, y: y, width: minSide, height: minSide)
+        borderCircle.frame = squareInCenter
+        borderCircle.cornerRadius = minSide / 2
         
-        let arcPath = CGPath(ellipseIn: bounds, transform: nil)
+        let arcPath = CGPath(ellipseIn: squareInCenter, transform: nil)
         maskLayer.path = arcPath
         maskLayer.frame = bounds
     }
@@ -77,10 +81,11 @@ class RoundedImageView: UIImageView, AnimatableCircle {
     func animateFrameAndPathOfImageView(initial: CGRect, destination: CGRect, duration: TimeInterval, options: UIViewAnimationOptions = []) {
         let minInitialSide = min(initial.width, initial.height)
         let minDestinationSide = min(destination.width, destination.height)
+        let squareInitial = CGRect(x: 0, y: 0, width: minInitialSide, height: minInitialSide)
         let squareDestination = CGRect(x: 0, y: 0, width: minDestinationSide, height: minDestinationSide)
         
         let boundsAnimation = CABasicAnimation(keyPath: "bounds")
-        boundsAnimation.fromValue = NSValue(cgRect: initial)
+        boundsAnimation.fromValue = NSValue(cgRect: squareInitial)
         boundsAnimation.toValue = NSValue(cgRect: squareDestination)
         
         let positionAnimation = CABasicAnimation(keyPath: "position")
@@ -94,7 +99,7 @@ class RoundedImageView: UIImageView, AnimatableCircle {
         cornersAnimation.toValue = minDestinationSide / 2
         
         let pathAnimation = CABasicAnimation(keyPath: "path")
-        pathAnimation.fromValue = CGPath(ellipseIn: initial, transform: nil)
+        pathAnimation.fromValue = CGPath(ellipseIn: squareInitial, transform: nil)
         let toPath = CGPath(ellipseIn: squareDestination, transform: nil)
         pathAnimation.toValue = toPath
         
