@@ -20,22 +20,29 @@ class TransitioningDelegate: NSObject, UIViewControllerTransitioningDelegate {
 
 class AnimationController: NSObject, UIViewControllerAnimatedTransitioning {
     
-    let duration:TimeInterval = 3
+    let duration:TimeInterval = 1
+    
+    var propertyAnimator: UIViewPropertyAnimator?
     
     func transitionDuration(using transitionContext: UIViewControllerContextTransitioning?) -> TimeInterval {
         return duration
     }
     
     func animateTransition(using transitionContext: UIViewControllerContextTransitioning) {
+        propertyAnimator = propertyAnimator(using: transitionContext)
+        propertyAnimator?.startAnimation()
+    }
+    
+    func propertyAnimator(using transitionContext: UIViewControllerContextTransitioning) -> UIViewPropertyAnimator? {
         let inView = transitionContext.containerView
         guard let toNavVC = transitionContext.viewController(forKey: UITransitionContextViewControllerKey.to) as? UINavigationController else {
-            return
+            return nil
         }
         guard let fromVC = transitionContext.viewController(forKey: UITransitionContextViewControllerKey.from) as? FirstViewController else {
-            return
+            return nil
         }
         guard let secondVC = toNavVC.viewControllers.first as? SecondViewController else {
-            return
+            return nil
         }
         let fromIV = fromVC.thumbImageView!
         let toView = toNavVC.view!
@@ -47,55 +54,59 @@ class AnimationController: NSObject, UIViewControllerAnimatedTransitioning {
         
         let animatableCopy = RoundedImageView(image: fromIV.image)
         inView.addSubview(animatableCopy)
-        animateConstraints(forView: animatableCopy, fromView:fromIV) { completed in
+        fromIV.isHidden = true
+        
+        let completion = {
             animatableCopy.removeFromSuperview()
             secondVC.view.alpha = 1
+            fromIV.isHidden = false
             transitionContext.completeTransition(true)
         }
+        
+        let timing = UICubicTimingParameters(animationCurve: .easeInOut)
+        let animator = UIViewPropertyAnimator(duration: duration, timingParameters: timing)
+        
+        animateRoundedView(roundedView: animatableCopy, fromOriginal:fromIV)
+        animator.addAnimations {
+            self.expandAnimation(forView: animatableCopy)
+        }
+        animator.addCompletion { (position) in
+            completion()
+        }
+        return animator
     }
     
-    func setupInitialConstraints(forView: UIView, fromView: UIView) -> [NSLayoutConstraint] {
-        let constraints = [ forView.topAnchor.constraint(equalTo: fromView.topAnchor),
-                            forView.leadingAnchor.constraint(equalTo: fromView.leadingAnchor),
-                            forView.trailingAnchor.constraint(equalTo: fromView.trailingAnchor),
-                            forView.bottomAnchor.constraint(equalTo: fromView.bottomAnchor) ]
+    func animateRoundedView<T:UIView>(roundedView: T, fromOriginal: UIView) where T:AnimatableCircle {
+        let constraints = alignConstraints(toView: roundedView, fromView: fromOriginal)
+        roundedView.superview?.layoutIfNeeded()
+        NSLayoutConstraint.deactivate(constraints)
+        
+        activateFullScreenConstraints(forView: roundedView)
+    }
+    
+    func alignConstraints(toView: UIView, fromView: UIView) -> [NSLayoutConstraint] {
+        let constraints = [ toView.topAnchor.constraint(equalTo: fromView.topAnchor),
+                            toView.leadingAnchor.constraint(equalTo: fromView.leadingAnchor),
+                            toView.trailingAnchor.constraint(equalTo: fromView.trailingAnchor),
+                            toView.bottomAnchor.constraint(equalTo: fromView.bottomAnchor) ]
         NSLayoutConstraint.activate(constraints)
         return constraints
     }
     
-    func setupAfterAnimationConstraints(forView: UIView) -> [NSLayoutConstraint] {
+    func activateFullScreenConstraints(forView: UIView) {
         let views = ["roundedView": forView]
         let horizont = NSLayoutConstraint.constraints(withVisualFormat: "H:|[roundedView]|", options:.alignAllBottom, metrics: nil, views: views)
         let vertical = NSLayoutConstraint.constraints(withVisualFormat: "V:|[roundedView]|", options:.alignAllBottom, metrics: nil, views: views)
         let constraints = horizont + vertical
         NSLayoutConstraint.activate(constraints)
-        return constraints
     }
     
-    func animateConstraints<T:UIView>(forView: T, fromView: UIView, completion: ((Bool) -> ())?) where T:AnimatableCircle {
-        let constraints = setupInitialConstraints(forView: forView, fromView: fromView)
-        forView.superview!.layoutIfNeeded()
-        NSLayoutConstraint.deactivate(constraints)
-        _ = setupAfterAnimationConstraints(forView: forView)
-        shrinkAnimate(forView: forView, completion: completion)
-    }
-    
-    
-    func shrinkAnimate<T:UIView>(forView: T, completion: ((Bool) -> ())?) where T:AnimatableCircle {
-//        let options: UIViewAnimationOptions = [.autoreverse, .repeat, .curveEaseInOut]
+    func expandAnimation<T:UIView>(forView: T) where T:AnimatableCircle {
         let options: UIViewAnimationOptions = []
-        UIView.animate(withDuration: duration, delay: 0, options: options, animations: {
-            let initialBounds = forView.bounds
-            forView.superview!.layoutIfNeeded()
-            let destinationBounds = forView.bounds
-            forView.animateFrameAndPathOfImageView(initial: initialBounds, destination: destinationBounds, duration: self.duration, options: options)
-        }, completion: completion)
+        let initialBounds = forView.bounds
+        forView.superview?.layoutIfNeeded()
+        let destinationBounds = forView.bounds
+        forView.animateFrameAndPathOfImageView(initial: initialBounds, destination: destinationBounds, duration: self.duration, options: options)
     }
-}
-
-class InteractionController: NSObject, UIViewControllerInteractiveTransitioning {
     
-    func startInteractiveTransition(_ transitionContext: UIViewControllerContextTransitioning) {
-        
-    }
 }
