@@ -17,6 +17,10 @@ class TransitioningDelegate: NSObject, UIViewControllerTransitioningDelegate {
         return animationController
     }
     
+    func animationController(forDismissed dismissed: UIViewController) -> UIViewControllerAnimatedTransitioning? {
+        return animationController
+    }
+    
 }
 
 class AnimationController: NSObject, UIViewControllerAnimatedTransitioning {
@@ -29,17 +33,15 @@ class AnimationController: NSObject, UIViewControllerAnimatedTransitioning {
     }
     
     func animateTransition(using transitionContext: UIViewControllerContextTransitioning) {
-        propertyAnimator = presentingPropertyAnimator(using: transitionContext)
+        if isPresentingTransition(transitionContext: transitionContext) {
+            propertyAnimator = propertyAnimatorForPresenting(using: transitionContext)
+        } else {
+            propertyAnimator = propertyAnimatorForDismissing(using: transitionContext)
+        }
         propertyAnimator?.startAnimation()
     }
     
-    private func isPresentingTransition(transitionContext: UIViewControllerContextTransitioning) -> Bool {
-        guard let toVC = transitionContext.viewController(forKey: .to) else { return true }
-        let isPresentingFirst = toVC is ThumbImageViewController
-        return isPresentingFirst
-    }
-    
-    private func presentingPropertyAnimator(using transitionContext: UIViewControllerContextTransitioning) -> UIViewPropertyAnimator? {
+    private func propertyAnimatorForPresenting(using transitionContext: UIViewControllerContextTransitioning) -> UIViewPropertyAnimator? {
 
         let fromVC = transitionContext.viewController(forKey: .from) as? ThumbImageViewController
         guard let originalRoundedView = fromVC?.thumbImageView  else { return nil }
@@ -50,7 +52,7 @@ class AnimationController: NSObject, UIViewControllerAnimatedTransitioning {
         copyRoundedView.frame = originalRoundedView.frame
         containerView.addSubview(copyRoundedView)
         originalRoundedView.isHidden = true
-        setupRoundedViewConstraints(roundedView: copyRoundedView, fromOriginal:originalRoundedView)
+        setupViewFullScreenConstraints(roundedView: copyRoundedView)
         
         // Create animator
         let timing = UICubicTimingParameters(animationCurve: .easeInOut)
@@ -67,6 +69,45 @@ class AnimationController: NSObject, UIViewControllerAnimatedTransitioning {
         return animator
     }
     
+    private func propertyAnimatorForDismissing(using transitionContext: UIViewControllerContextTransitioning) -> UIViewPropertyAnimator? {
+        let fromNVC = transitionContext.viewController(forKey: .from) as? UINavigationController
+        let fromVC = fromNVC?.viewControllers.first as? FullImageViewController
+        let toVC = transitionContext.viewController(forKey: .to) as? ThumbImageViewController
+        guard let originalFullView = fromVC?.fullImageView  else { return nil }
+        guard let originalRoundedView = toVC?.thumbImageView else { return nil }
+        let fromView = transitionContext.view(forKey: .from)!
+        let containerView = transitionContext.containerView
+        
+        let copyRoundedView = RoundedImageView(image: originalFullView.image)
+        copyRoundedView.frame = originalFullView.frame
+        containerView.addSubview(copyRoundedView)
+        originalFullView.isHidden = true
+        originalRoundedView.isHidden = true
+        alignConstraints(toView: copyRoundedView, fromView: originalRoundedView)
+        
+        // Create animator
+        let timing = UICubicTimingParameters(animationCurve: .easeInOut)
+        let animator = UIViewPropertyAnimator(duration: duration, timingParameters: timing)
+        animator.addAnimations {
+            self.expandAnimation(forView: copyRoundedView)
+        }
+        animator.addCompletion { (position) in
+            copyRoundedView.removeFromSuperview()
+            originalRoundedView.isHidden = false
+            fromView.removeFromSuperview()
+            transitionContext.completeTransition(true)
+        }
+        return animator
+    }
+    
+    private func isPresentingTransition(transitionContext: UIViewControllerContextTransitioning) -> Bool {
+        guard let toVC = transitionContext.viewController(forKey: .from) else {
+            return true
+        }
+        let isPresentingFull = toVC is ThumbImageViewController
+        return isPresentingFull
+    }
+    
     private func expandAnimation(forView: RoundedImageView) {
         let options: UIViewAnimationOptions = []
         let initialBounds = forView.bounds
@@ -77,7 +118,7 @@ class AnimationController: NSObject, UIViewControllerAnimatedTransitioning {
     
     // MARK: - Constraints setup
     
-    private func setupRoundedViewConstraints(roundedView: UIView, fromOriginal: UIView) {
+    private func setupViewFullScreenConstraints(roundedView: UIView) {
         let views = ["roundedView": roundedView]
         let horizont = NSLayoutConstraint.constraints(withVisualFormat: "H:|[roundedView]|", options:.alignAllBottom, metrics: nil, views: views)
         let vertical = NSLayoutConstraint.constraints(withVisualFormat: "V:|[roundedView]|", options:.alignAllBottom, metrics: nil, views: views)
@@ -85,5 +126,12 @@ class AnimationController: NSObject, UIViewControllerAnimatedTransitioning {
         NSLayoutConstraint.activate(constraints)
     }
     
+    private func alignConstraints(toView: UIView, fromView: UIView) {
+        let constraints = [ toView.topAnchor.constraint(equalTo: fromView.topAnchor),
+                            toView.leadingAnchor.constraint(equalTo: fromView.leadingAnchor),
+                            toView.trailingAnchor.constraint(equalTo: fromView.trailingAnchor),
+                            toView.bottomAnchor.constraint(equalTo: fromView.bottomAnchor) ]
+        NSLayoutConstraint.activate(constraints)
+    }
 
 }
