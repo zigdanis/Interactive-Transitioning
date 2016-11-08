@@ -4,14 +4,15 @@
         <adaptation id="fullscreen"/>
     </device>
     <dependencies>
+        <deployment identifier="iOS"/>
         <plugIn identifier="com.apple.InterfaceBuilder.IBCocoaTouchPlugin" version="11524"/>
         <capability name="documents saved in the Xcode 8 format" minToolsVersion="8.0"/>
     </dependencies>
     <scenes>
-        <!--First View Controller-->
+        <!--Thumb Image View Controller-->
         <scene sceneID="tne-QT-ifu">
             <objects>
-                <viewController id="BYZ-38-t0r" customClass="FirstViewController" customModule="InteractiveTransitioning" customModuleProvider="target" sceneMemberID="viewController">
+                <viewController id="BYZ-38-t0r" customClass="ThumbImageViewController" customModule="InteractiveTransitioning" customModuleProvider="target" sceneMemberID="viewController">
                     <layoutGuides>
                         <viewControllerLayoutGuide type="top" id="y3c-jy-aDJ"/>
                         <viewControllerLayoutGuide type="bottom" id="wfy-db-euE"/>
@@ -42,10 +43,10 @@
             </objects>
             <point key="canvasLocation" x="-1152" y="-113"/>
         </scene>
-        <!--Second View Controller-->
+        <!--Full Image View Controller-->
         <scene sceneID="Nkw-5O-U7G">
             <objects>
-                <viewController storyboardIdentifier="SecondViewController" id="8kR-Ca-hhX" customClass="SecondViewController" customModule="InteractiveTransitioning" customModuleProvider="target" sceneMemberID="viewController">
+                <viewController storyboardIdentifier="FullImageViewController" id="8kR-Ca-hhX" customClass="FullImageViewController" customModule="InteractiveTransitioning" customModuleProvider="target" sceneMemberID="viewController">
                     <layoutGuides>
                         <viewControllerLayoutGuide type="top" id="Mtg-Nw-ayG"/>
                         <viewControllerLayoutGuide type="bottom" id="r5t-cK-Q4q"/>

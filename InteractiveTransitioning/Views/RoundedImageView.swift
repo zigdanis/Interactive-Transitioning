@@ -9,7 +9,7 @@
 import UIKit
 
 @IBDesignable
-class RoundedImageView: UIImageView, AnimatableCircle {
+class RoundedImageView: UIImageView {
     let maskLayer = CAShapeLayer()
     let borderCircle = CAShapeLayer()
     

@@ -8,7 +8,7 @@
 
 import UIKit
 
-class SecondViewController: UIViewController {
+class FullImageViewController: UIViewController {
     
     @IBOutlet weak var fullImageView: UIImageView!
     

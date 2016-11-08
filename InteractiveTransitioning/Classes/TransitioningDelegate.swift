@@ -16,12 +16,12 @@ class TransitioningDelegate: NSObject, UIViewControllerTransitioningDelegate {
     func animationController(forPresented presented: UIViewController, presenting: UIViewController, source: UIViewController) -> UIViewControllerAnimatedTransitioning? {
         return animationController
     }
+    
 }
 
 class AnimationController: NSObject, UIViewControllerAnimatedTransitioning {
     
     let duration:TimeInterval = 1
-    
     var propertyAnimator: UIViewPropertyAnimator?
     
     func transitionDuration(using transitionContext: UIViewControllerContextTransitioning?) -> TimeInterval {
@@ -29,79 +29,45 @@ class AnimationController: NSObject, UIViewControllerAnimatedTransitioning {
     }
     
     func animateTransition(using transitionContext: UIViewControllerContextTransitioning) {
-        propertyAnimator = propertyAnimator(using: transitionContext)
+        propertyAnimator = presentingPropertyAnimator(using: transitionContext)
         propertyAnimator?.startAnimation()
     }
     
-    func propertyAnimator(using transitionContext: UIViewControllerContextTransitioning) -> UIViewPropertyAnimator? {
-        let inView = transitionContext.containerView
-        guard let toNavVC = transitionContext.viewController(forKey: UITransitionContextViewControllerKey.to) as? UINavigationController else {
-            return nil
-        }
-        guard let fromVC = transitionContext.viewController(forKey: UITransitionContextViewControllerKey.from) as? FirstViewController else {
-            return nil
-        }
-        guard let secondVC = toNavVC.viewControllers.first as? SecondViewController else {
-            return nil
-        }
-        let fromIV = fromVC.thumbImageView!
-        let toView = toNavVC.view!
+    private func isPresentingTransition(transitionContext: UIViewControllerContextTransitioning) -> Bool {
+        guard let toVC = transitionContext.viewController(forKey: .to) else { return true }
+        let isPresentingFirst = toVC is ThumbImageViewController
+        return isPresentingFirst
+    }
+    
+    private func presentingPropertyAnimator(using transitionContext: UIViewControllerContextTransitioning) -> UIViewPropertyAnimator? {
+
+        let fromVC = transitionContext.viewController(forKey: .from) as? ThumbImageViewController
+        guard let originalRoundedView = fromVC?.thumbImageView  else { return nil }
+        let toView = transitionContext.view(forKey: .to)!
+        let containerView = transitionContext.containerView
         
-        //Setup
-        inView.addSubview(toView)
-        toNavVC.navigationBar.alpha = 0
-        secondVC.view.alpha = 0
+        let copyRoundedView = RoundedImageView(image: originalRoundedView.image)
+        copyRoundedView.frame = originalRoundedView.frame
+        containerView.addSubview(copyRoundedView)
+        originalRoundedView.isHidden = true
+        setupRoundedViewConstraints(roundedView: copyRoundedView, fromOriginal:originalRoundedView)
         
-        let animatableCopy = RoundedImageView(image: fromIV.image)
-        inView.addSubview(animatableCopy)
-        fromIV.isHidden = true
-        
-        let completion = {
-            animatableCopy.removeFromSuperview()
-            secondVC.view.alpha = 1
-            fromIV.isHidden = false
-            transitionContext.completeTransition(true)
-        }
-        
+        // Create animator
         let timing = UICubicTimingParameters(animationCurve: .easeInOut)
         let animator = UIViewPropertyAnimator(duration: duration, timingParameters: timing)
-        
-        animateRoundedView(roundedView: animatableCopy, fromOriginal:fromIV)
         animator.addAnimations {
-            self.expandAnimation(forView: animatableCopy)
+            self.expandAnimation(forView: copyRoundedView)
         }
         animator.addCompletion { (position) in
-            completion()
+            copyRoundedView.removeFromSuperview()
+            originalRoundedView.isHidden = false
+            containerView.addSubview(toView)
+            transitionContext.completeTransition(true)
         }
         return animator
     }
     
-    func animateRoundedView<T:UIView>(roundedView: T, fromOriginal: UIView) where T:AnimatableCircle {
-        let constraints = alignConstraints(toView: roundedView, fromView: fromOriginal)
-        roundedView.superview?.layoutIfNeeded()
-        NSLayoutConstraint.deactivate(constraints)
-        
-        activateFullScreenConstraints(forView: roundedView)
-    }
-    
-    func alignConstraints(toView: UIView, fromView: UIView) -> [NSLayoutConstraint] {
-        let constraints = [ toView.topAnchor.constraint(equalTo: fromView.topAnchor),
-                            toView.leadingAnchor.constraint(equalTo: fromView.leadingAnchor),
-                            toView.trailingAnchor.constraint(equalTo: fromView.trailingAnchor),
-                            toView.bottomAnchor.constraint(equalTo: fromView.bottomAnchor) ]
-        NSLayoutConstraint.activate(constraints)
-        return constraints
-    }
-    
-    func activateFullScreenConstraints(forView: UIView) {
-        let views = ["roundedView": forView]
-        let horizont = NSLayoutConstraint.constraints(withVisualFormat: "H:|[roundedView]|", options:.alignAllBottom, metrics: nil, views: views)
-        let vertical = NSLayoutConstraint.constraints(withVisualFormat: "V:|[roundedView]|", options:.alignAllBottom, metrics: nil, views: views)
-        let constraints = horizont + vertical
-        NSLayoutConstraint.activate(constraints)
-    }
-    
-    func expandAnimation<T:UIView>(forView: T) where T:AnimatableCircle {
+    private func expandAnimation(forView: RoundedImageView) {
         let options: UIViewAnimationOptions = []
         let initialBounds = forView.bounds
         forView.superview?.layoutIfNeeded()
@@ -109,4 +75,15 @@ class AnimationController: NSObject, UIViewControllerAnimatedTransitioning {
         forView.animateFrameAndPathOfImageView(initial: initialBounds, destination: destinationBounds, duration: self.duration, options: options)
     }
     
+    // MARK: - Constraints setup
+    
+    private func setupRoundedViewConstraints(roundedView: UIView, fromOriginal: UIView) {
+        let views = ["roundedView": roundedView]
+        let horizont = NSLayoutConstraint.constraints(withVisualFormat: "H:|[roundedView]|", options:.alignAllBottom, metrics: nil, views: views)
+        let vertical = NSLayoutConstraint.constraints(withVisualFormat: "V:|[roundedView]|", options:.alignAllBottom, metrics: nil, views: views)
+        let constraints = horizont + vertical
+        NSLayoutConstraint.activate(constraints)
+    }
+    
+
 }

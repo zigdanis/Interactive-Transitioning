@@ -8,7 +8,7 @@
 
 import UIKit
 
-class FirstViewController: UIViewController {
+class ThumbImageViewController: UIViewController {
 
     @IBOutlet weak var thumbImageView: RoundedImageView!
     let transitionController = TransitioningDelegate()
@@ -38,7 +38,7 @@ class FirstViewController: UIViewController {
     }
     
     func handleTapGesture(gesture: UIGestureRecognizer) {
-        guard let secondVC = storyboard?.instantiateViewController(withIdentifier: "SecondViewController") else {
+        guard let secondVC = storyboard?.instantiateViewController(withIdentifier: "FullImageViewController") else {
             return
         }
         let navController = UINavigationController(rootViewController: secondVC)
