@@ -17,9 +17,9 @@ class TransitioningDelegate: NSObject, UIViewControllerTransitioningDelegate {
         return animationController
     }
     
-    func animationController(forDismissed dismissed: UIViewController) -> UIViewControllerAnimatedTransitioning? {
-        return animationController
-    }
+//    func animationController(forDismissed dismissed: UIViewController) -> UIViewControllerAnimatedTransitioning? {
+//        return animationController
+//    }
     
 }
 
@@ -33,6 +33,41 @@ class AnimationController: NSObject, UIViewControllerAnimatedTransitioning {
     }
     
     func animateTransition(using transitionContext: UIViewControllerContextTransitioning) {
+        let fromVC = transitionContext.viewController(forKey: .from) as? ThumbImageViewController
+        guard let originalRoundedView = fromVC?.thumbImageView  else { return }
+        let toView = transitionContext.view(forKey: .to)!
+        let containerView = transitionContext.containerView
+        
+        let copyRoundedView = RoundedImageView(image: originalRoundedView.image)
+        copyRoundedView.frame = originalRoundedView.frame
+        containerView.addSubview(toView)
+        toView.isHidden = true
+        containerView.addSubview(copyRoundedView)
+        originalRoundedView.isHidden = true
+        setupViewFullScreenConstraints(roundedView: copyRoundedView)
+        containerView.layoutIfNeeded()
+        
+        let initialBounds = copyRoundedView.bounds
+        let containigCircleRect = self.containingCircleRect(for: initialBounds)
+//        var rectWithOffset = containigCircleRect
+//        rectWithOffset.origin.x += 195/2.0
+//        copyRoundedView.updatedRect = rectWithOffset
+        
+        let options: UIViewAnimationOptions = []
+        UIView.animate(withDuration: duration, delay: 0, options: options, animations: {
+            print("Start animating")
+            copyRoundedView.animateFrameAndPathOfImageView(initial: initialBounds, destination: containigCircleRect, duration: self.duration, options: options)
+            copyRoundedView.alpha = 0.99
+        }, completion: { state in
+            toView.isHidden = false
+            originalRoundedView.isHidden = false
+            copyRoundedView.removeFromSuperview()
+            transitionContext.completeTransition(true)
+        })
+    }
+    
+   
+    func myAnimateTransition(using transitionContext: UIViewControllerContextTransitioning) {
         if isPresentingTransition(transitionContext: transitionContext) {
             propertyAnimator = propertyAnimatorForPresenting(using: transitionContext)
         } else {
@@ -50,20 +85,27 @@ class AnimationController: NSObject, UIViewControllerAnimatedTransitioning {
         
         let copyRoundedView = RoundedImageView(image: originalRoundedView.image)
         copyRoundedView.frame = originalRoundedView.frame
+        containerView.addSubview(toView)
+        toView.isHidden = true
         containerView.addSubview(copyRoundedView)
         originalRoundedView.isHidden = true
         setupViewFullScreenConstraints(roundedView: copyRoundedView)
+        
+        let initialBounds = copyRoundedView.bounds
+        let containigCircleRect = self.containingCircleRect(for: initialBounds)
+        containerView.layoutIfNeeded()
         
         // Create animator
         let timing = UICubicTimingParameters(animationCurve: .easeInOut)
         let animator = UIViewPropertyAnimator(duration: duration, timingParameters: timing)
         animator.addAnimations {
-            self.expandAnimation(forView: copyRoundedView)
+            let options: UIViewAnimationOptions = []
+            copyRoundedView.animateFrameAndPathOfImageView(initial: initialBounds, destination: containigCircleRect, duration: self.duration, options: options)
         }
         animator.addCompletion { (position) in
-            copyRoundedView.removeFromSuperview()
+            toView.isHidden = false
             originalRoundedView.isHidden = false
-            containerView.addSubview(toView)
+            copyRoundedView.removeFromSuperview()
             transitionContext.completeTransition(true)
         }
         return animator
@@ -89,7 +131,19 @@ class AnimationController: NSObject, UIViewControllerAnimatedTransitioning {
         let timing = UICubicTimingParameters(animationCurve: .easeInOut)
         let animator = UIViewPropertyAnimator(duration: duration, timingParameters: timing)
         animator.addAnimations {
-            self.expandAnimation(forView: copyRoundedView)
+            UIView.animateKeyframes(withDuration: self.duration, delay: 0, options: [.calculationModeCubic], animations: {
+                UIView.addKeyframe(withRelativeStartTime: 0, relativeDuration: self.duration/2.0) {
+                    self.expandAnimation(forView: copyRoundedView)
+                }
+                UIView.addKeyframe(withRelativeStartTime: self.duration/2.0, relativeDuration: self.duration/2.0) {
+                    let options: UIViewAnimationOptions = []
+                    let destinationBounds = copyRoundedView.bounds
+                    let height = destinationBounds.height
+                    let diffSide = height - destinationBounds.width
+                    let maxRect = CGRect(x: -diffSide/2, y: 0, width: height, height: height)
+                    copyRoundedView.animateFrameAndPathOfImageView(initial: destinationBounds, destination: maxRect, duration: self.duration/2.0, options: options)
+                }
+            })
         }
         animator.addCompletion { (position) in
             copyRoundedView.removeFromSuperview()
@@ -134,4 +188,14 @@ class AnimationController: NSObject, UIViewControllerAnimatedTransitioning {
         NSLayoutConstraint.activate(constraints)
     }
 
+    // MARK: - Helpers
+    private func containingCircleRect(for rect: CGRect) -> CGRect {
+        let height = rect.height
+        let width = rect.width
+        let diameter = sqrt((height * height) + (width * width))
+        let newX = rect.origin.x - (diameter - width) / 2
+        let newY = rect.origin.y - (diameter - height) / 2
+        let containerRect = CGRect(x: newX, y: newY, width: diameter, height: diameter)
+        return containerRect
+    }
 }

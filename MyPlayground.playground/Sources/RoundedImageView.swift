@@ -9,10 +9,11 @@
 import UIKit
 
 @IBDesignable
-class RoundedImageView: UIImageView {
+public class RoundedImageView: UIImageView {
     let maskLayer = CAShapeLayer()
     let borderCircle = CAShapeLayer()
     var updatedRect: CGRect? = nil
+    
     
     convenience init() {
         self.init(image: nil)
@@ -22,13 +23,13 @@ class RoundedImageView: UIImageView {
         self.init(image: UIImage(named: "close-winter"))
     }
     
-    override init(image: UIImage?) {
+    public override init(image: UIImage?) {
         super.init(image: image)
         setupViewBehaviour()
         addRoundingLayers()
     }
     
-    required init?(coder: NSCoder) {
+    public required init?(coder: NSCoder) {
         super.init(coder:coder)
         setupViewBehaviour()
         addRoundingLayers()
@@ -40,12 +41,12 @@ class RoundedImageView: UIImageView {
         contentMode = .scaleAspectFill
     }
     
-    override func layoutSubviews() {
+    override public func layoutSubviews() {
         updateRoundedLayers(for: updatedRect)
         super.layoutSubviews()
     }
     
-    override func prepareForInterfaceBuilder() {
+    public override func prepareForInterfaceBuilder() {
         updateRoundedLayers()
         super.prepareForInterfaceBuilder()
     }
@@ -60,7 +61,7 @@ class RoundedImageView: UIImageView {
         maskLayer.fillColor = UIColor.white.cgColor
         maskLayer.lineWidth = 0
         layer.mask = maskLayer
-
+        
         updateRoundedLayers()
     }
     
@@ -76,13 +77,11 @@ class RoundedImageView: UIImageView {
         let arcPath = CGPath(ellipseIn: squareInCenter, transform: nil)
         maskLayer.path = arcPath
         maskLayer.frame = aBounds
-        print("SquareInCenter = \(squareInCenter)")
-        print("aBounds = \(aBounds)")
     }
     
     //MARK: - Public
     
-    func animateFrameAndPathOfImageView(initial: CGRect, destination: CGRect, duration: TimeInterval, options: UIViewAnimationOptions = []) {
+    public func animateFrameAndPathOfImageView(initial: CGRect, destination: CGRect, duration: TimeInterval, options: UIViewAnimationOptions = []) {
         let minInitialSide = min(initial.width, initial.height)
         let minDestinationSide = min(destination.width, destination.height)
         let squareInitial = CGRect(x: 0, y: 0, width: minInitialSide, height: minInitialSide)
@@ -149,5 +148,78 @@ class RoundedImageView: UIImageView {
             animation.repeatCount = MAXFLOAT
         }
     }
-
+    
+    
+    
+    
+    public func animateFrameAndPathOfImageViewBackAndForth(initial: CGRect, destination: CGRect, duration: TimeInterval, options: UIViewAnimationOptions = []) {
+        let minInitialSide = min(initial.width, initial.height)
+        let minDestinationSide = min(destination.width, destination.height)
+        let squareInitial = CGRect(x: 0, y: 0, width: minInitialSide, height: minInitialSide)
+        let squareDestination = CGRect(x: 0, y: 0, width: minDestinationSide, height: minDestinationSide)
+        let half: NSNumber = 0.5
+        
+        let boundsAnimation = CAKeyframeAnimation(keyPath: "bounds")
+        let boundsAnimationFromValue = NSValue(cgRect: squareInitial)
+        let boundsAnimationToValue = NSValue(cgRect: squareDestination)
+        boundsAnimation.values = [ boundsAnimationFromValue,
+                                   boundsAnimationToValue,
+                                   boundsAnimationFromValue ]
+//        boundsAnimation.keyTimes = [half, half]
+        boundsAnimation.timingFunctions = [
+            CAMediaTimingFunction(name: kCAMediaTimingFunctionLinear),
+            CAMediaTimingFunction(name: kCAMediaTimingFunctionLinear) ]
+        boundsAnimation.duration = duration
+        
+        let positionAnimation = CAKeyframeAnimation(keyPath: "position")
+        let fromPosition = CGPoint(x: initial.midX, y: initial.midY)
+        let toPosition = CGPoint(x: destination.midX, y: destination.midY)
+        positionAnimation.values = [ NSValue(cgPoint: fromPosition),
+                                     NSValue(cgPoint: toPosition),
+                                     NSValue(cgPoint: fromPosition) ]
+//        positionAnimation.keyTimes = [half, half]
+        positionAnimation.timingFunctions = [
+            CAMediaTimingFunction(name: kCAMediaTimingFunctionLinear),
+            CAMediaTimingFunction(name: kCAMediaTimingFunctionLinear) ]
+        positionAnimation.duration = duration
+        
+        let cornersAnimation = CAKeyframeAnimation(keyPath: "cornerRadius")
+        cornersAnimation.values = [ minInitialSide / 2,
+                                    minDestinationSide / 2,
+                                    minInitialSide / 2 ]
+//        cornersAnimation.keyTimes = [half, half]
+        cornersAnimation.timingFunctions = [
+            CAMediaTimingFunction(name: kCAMediaTimingFunctionLinear),
+            CAMediaTimingFunction(name: kCAMediaTimingFunctionLinear) ]
+        cornersAnimation.duration = duration
+        
+        let pathAnimation = CAKeyframeAnimation(keyPath: "path")
+        let fromPath = CGPath(ellipseIn: squareInitial, transform: nil)
+        let toPath = CGPath(ellipseIn: squareDestination, transform: nil)
+        pathAnimation.values = [ fromPath,
+                                 toPath,
+                                 fromPath ]
+//        pathAnimation.keyTimes = [half, half]
+        pathAnimation.timingFunctions = [
+            CAMediaTimingFunction(name: kCAMediaTimingFunctionLinear),
+            CAMediaTimingFunction(name: kCAMediaTimingFunctionLinear) ]
+        pathAnimation.duration = duration
+        
+        let borderGroup = CAAnimationGroup()
+        borderGroup.duration = duration
+        borderGroup.animations = [boundsAnimation, positionAnimation, cornersAnimation]
+        setupOptionsForAnimation(animation: borderGroup, options: options)
+        
+        let maskGroup = CAAnimationGroup()
+        maskGroup.duration = duration
+        maskGroup.animations = [boundsAnimation, positionAnimation, pathAnimation]
+        setupOptionsForAnimation(animation: maskGroup, options: options)
+        
+//        borderCircle.cornerRadius = minDestinationSide / 2
+        borderCircle.add(borderGroup, forKey: "Resizing border")
+//        maskLayer.path = toPath
+//        maskLayer.bounds = squareDestination
+//        maskLayer.position = toPosition
+        maskLayer.add(maskGroup, forKey: "Resizing circle mask")
+    }
 }

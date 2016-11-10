@@ -18,6 +18,7 @@
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
+		091CED8E1DD3AFBA0072914B /* MyPlayground.playground */ = {isa = PBXFileReference; lastKnownFileType = file.playground; path = MyPlayground.playground; sourceTree = "<group>"; };
 		091E74A01D45288A00FBE6B3 /* RoundedImageView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = RoundedImageView.swift; sourceTree = "<group>"; };
 		092A26D71D394C7C00EBB2EF /* Images.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Images.xcassets; sourceTree = "<group>"; };
 		092A26DA1D394C7C00EBB2EF /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = Base; path = Base.lproj/LaunchScreen.storyboard; sourceTree = "<group>"; };
@@ -74,13 +75,6 @@
 			path = "Supporting Files";
 			sourceTree = "<group>";
 		};
-		092A26E31D394D1A00EBB2EF /* Helpers */ = {
-			isa = PBXGroup;
-			children = (
-			);
-			path = Helpers;
-			sourceTree = "<group>";
-		};
 		092A26E41D394D1A00EBB2EF /* ViewControllers */ = {
 			isa = PBXGroup;
 			children = (
@@ -93,6 +87,7 @@
 		098F8A7D1D3940F9009F5383 = {
 			isa = PBXGroup;
 			children = (
+				091CED8E1DD3AFBA0072914B /* MyPlayground.playground */,
 				098F8A881D3940FA009F5383 /* InteractiveTransitioning */,
 				098F8A871D3940FA009F5383 /* Products */,
 			);
@@ -112,7 +107,6 @@
 				098F8A891D3940FA009F5383 /* AppDelegate.swift */,
 				091E749F1D4527CB00FBE6B3 /* Views */,
 				09F04DC61D3D4571001AB40F /* Classes */,
-				092A26E31D394D1A00EBB2EF /* Helpers */,
 				092A26E41D394D1A00EBB2EF /* ViewControllers */,
 				092A26D61D394C7C00EBB2EF /* Resources */,
 				092A26D81D394C7C00EBB2EF /* Storyboards */,
