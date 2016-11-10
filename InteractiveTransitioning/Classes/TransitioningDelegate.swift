@@ -25,13 +25,14 @@ class TransitioningDelegate: NSObject, UIViewControllerTransitioningDelegate {
 
 class AnimationController: NSObject, UIViewControllerAnimatedTransitioning {
     
-    let duration:TimeInterval = 1
+    let duration:TimeInterval = 2.0
     var propertyAnimator: UIViewPropertyAnimator?
     
     func transitionDuration(using transitionContext: UIViewControllerContextTransitioning?) -> TimeInterval {
         return duration
     }
     
+    /*
     func animateTransition(using transitionContext: UIViewControllerContextTransitioning) {
         
         //Prepare superview
@@ -64,9 +65,9 @@ class AnimationController: NSObject, UIViewControllerAnimatedTransitioning {
             transitionContext.completeTransition(true)
         }
     }
-    
+    */
    
-    func myAnimateTransition(using transitionContext: UIViewControllerContextTransitioning) {
+    func animateTransition(using transitionContext: UIViewControllerContextTransitioning) {
         if isPresenting(transition: transitionContext) {
             propertyAnimator = propertyAnimatorForPresenting(using: transitionContext)
         } else {
@@ -77,29 +78,32 @@ class AnimationController: NSObject, UIViewControllerAnimatedTransitioning {
     
     private func propertyAnimatorForPresenting(using transitionContext: UIViewControllerContextTransitioning) -> UIViewPropertyAnimator? {
 
+        //Prepare superview
         let fromVC = transitionContext.viewController(forKey: .from) as? ThumbImageViewController
         guard let originalRoundedView = fromVC?.thumbImageView  else { return nil }
         let toView = transitionContext.view(forKey: .to)!
         let containerView = transitionContext.containerView
-        
-        let copyRoundedView = RoundedImageView(image: originalRoundedView.image)
-        copyRoundedView.frame = originalRoundedView.frame
         containerView.addSubview(toView)
         toView.isHidden = true
-        containerView.addSubview(copyRoundedView)
         originalRoundedView.isHidden = true
-        setupViewFullScreenConstraints(roundedView: copyRoundedView)
         
-        let initialBounds = copyRoundedView.bounds
-        let containigCircleRect = self.containingCircleRect(for: initialBounds)
-        containerView.layoutIfNeeded()
+        //Setup animatable view
+        let expandingMultiplier = 1/20.0
+        let copyRoundedView = RoundedImageView(image: originalRoundedView.image)
+        copyRoundedView.expandingMultiplier = expandingMultiplier
+        copyRoundedView.frame = originalRoundedView.frame
+        containerView.addSubview(copyRoundedView)
+        setupViewFullScreenConstraints(roundedView: copyRoundedView)
+        let initialRect = originalRoundedView.bounds
+        let destinationRect = toView.bounds
         
         // Create animator
+        let totalDuration = duration + duration * expandingMultiplier
         let timing = UICubicTimingParameters(animationCurve: .easeInOut)
-        let animator = UIViewPropertyAnimator(duration: duration, timingParameters: timing)
+        let animator = UIViewPropertyAnimator(duration: totalDuration, timingParameters: timing)
         animator.addAnimations {
-            let options: UIViewAnimationOptions = []
-            copyRoundedView.animateFrameAndPathOfImageView(initial: initialBounds, destination: containigCircleRect, duration: self.duration, options: options)
+            containerView.layoutIfNeeded()
+            copyRoundedView.animateImageViewWithExpand(initial: initialRect, destination: destinationRect, duration: self.duration, options: [.curveEaseInOut])
         }
         animator.addCompletion { (position) in
             toView.isHidden = false

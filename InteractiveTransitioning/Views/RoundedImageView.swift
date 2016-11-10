@@ -14,6 +14,7 @@ class RoundedImageView: UIImageView, CAAnimationDelegate {
     let borderCircle = CAShapeLayer()
     var expandedRect: CGRect? = nil
     var animationCompletion: (()->())?
+    var expandingMultiplier = 1/20.0
     
     convenience init() {
         self.init(image: nil)
@@ -133,7 +134,7 @@ class RoundedImageView: UIImageView, CAAnimationDelegate {
         let squareExpanded = containingCircleRect(for: destination)
         let minExpandedSide = squareExpanded.size.width
         let timingFunc = mediaTimingFunction(for: options)
-        let fullDuration = duration + duration / 20.0
+        let fullDuration = duration + duration * expandingMultiplier
         let firstPart = NSNumber(value: 0)
         let secondPart = NSNumber(value: duration / fullDuration)
         let lastPart = NSNumber(value: 1)
