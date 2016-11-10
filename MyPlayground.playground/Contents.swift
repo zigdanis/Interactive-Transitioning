@@ -3,26 +3,14 @@
 import UIKit
 import PlaygroundSupport
 
-var str = "Hello, playground"
+let duration = 3.0
 
-let containerView = UIView(frame: CGRect(x: 0, y: 0, width: 500, height: 500))
+let containerView = UIView(frame: CGRect(x: 0, y: 0, width: 500, height: 700))
 containerView.backgroundColor = UIColor.red
 PlaygroundPage.current.liveView = containerView
 
-let duration = 3.0
-
 let roundedView = RoundedImageView(image: UIImage(named: "close-winter.jpg"))
 containerView.addSubview(roundedView)
-
-func containingCircleRect(for rect: CGRect) -> CGRect {
-    let height = rect.height
-    let width = rect.width
-    let diameter = sqrt((height * height) + (width * width))
-    let newX = rect.origin.x - (diameter - width) / 2
-    let newY = rect.origin.y - (diameter - height) / 2
-    let containerRect = CGRect(x: newX, y: newY, width: diameter, height: diameter)
-    return containerRect
-}
 
 func FfullConstraints() -> [NSLayoutConstraint] {
     let constraints = [
@@ -38,7 +26,7 @@ func FsmallConstraintsF() -> [NSLayoutConstraint] {
     let constraints = [
         roundedView.trailingAnchor.constraint(equalTo: containerView.trailingAnchor, constant:-20),
         roundedView.bottomAnchor.constraint(equalTo: containerView.bottomAnchor, constant:-20),
-        roundedView.widthAnchor.constraint(equalToConstant: 130),
+        roundedView.widthAnchor.constraint(equalToConstant: 230),
         roundedView.heightAnchor.constraint(equalToConstant: 130)
     ]
     return constraints
@@ -61,9 +49,14 @@ func keyFrameAnimation() {
         NSLayoutConstraint.deactivate(smallConstraints)
         NSLayoutConstraint.activate(fullConstraints)
         containerView.layoutIfNeeded()
-    }, completion: nil)
+    }, completion: { state in
+        print("UIView animation completed")
+    })
     
     roundedView.animateImageViewWithExpand(initial: initialRect, destination: destinationRect, duration: duration, options: options)
+    roundedView.animationCompletion = {
+        print("CAAnimation did completed")
+    }
 }
 
 keyFrameAnimation()

@@ -9,10 +9,11 @@
 import UIKit
 
 @IBDesignable
-class RoundedImageView: UIImageView {
+class RoundedImageView: UIImageView, CAAnimationDelegate {
     let maskLayer = CAShapeLayer()
     let borderCircle = CAShapeLayer()
-    var updatedRect: CGRect? = nil
+    var expandedRect: CGRect? = nil
+    var animationCompletion: (()->())?
     
     convenience init() {
         self.init(image: nil)
@@ -40,8 +41,8 @@ class RoundedImageView: UIImageView {
         contentMode = .scaleAspectFill
     }
     
-    override func layoutSubviews() {
-        updateRoundedLayers(for: updatedRect)
+    override public func layoutSubviews() {
+        updateRoundedLayers(for: expandedRect)
         super.layoutSubviews()
     }
     
@@ -60,7 +61,7 @@ class RoundedImageView: UIImageView {
         maskLayer.fillColor = UIColor.white.cgColor
         maskLayer.lineWidth = 0
         layer.mask = maskLayer
-
+        
         updateRoundedLayers()
     }
     
@@ -75,9 +76,8 @@ class RoundedImageView: UIImageView {
         
         let arcPath = CGPath(ellipseIn: squareInCenter, transform: nil)
         maskLayer.path = arcPath
-        maskLayer.frame = aBounds
-        print("SquareInCenter = \(squareInCenter)")
-        print("aBounds = \(aBounds)")
+        maskLayer.bounds = aBounds
+        maskLayer.position = CGPoint(x: aBounds.midX, y: aBounds.midY)
     }
     
     //MARK: - Public
@@ -125,10 +125,102 @@ class RoundedImageView: UIImageView {
         maskLayer.add(maskGroup, forKey: "Resizing circle mask")
     }
     
+    func animateImageViewWithExpand(initial: CGRect, destination: CGRect, duration: TimeInterval, options: UIViewAnimationOptions = []) {
+        let minInitialSide = min(initial.width, initial.height)
+        let minDestinationSide = min(destination.width, destination.height)
+        let squareInitial = CGRect(x: 0, y: 0, width: minInitialSide, height: minInitialSide)
+        let squareDestination = CGRect(x: 0, y: 0, width: minDestinationSide, height: minDestinationSide)
+        let squareExpanded = containingCircleRect(for: destination)
+        let minExpandedSide = squareExpanded.size.width
+        let timingFunc = mediaTimingFunction(for: options)
+        let fullDuration = duration + duration / 20.0
+        let firstPart = NSNumber(value: 0)
+        let secondPart = NSNumber(value: duration / fullDuration)
+        let lastPart = NSNumber(value: 1)
+        
+        let boundsAnimation = CAKeyframeAnimation(keyPath: "bounds")
+        let boundsAnimationFromValue = NSValue(cgRect: squareInitial)
+        let boundsAnimationToValue = NSValue(cgRect: squareDestination)
+        let boundsAnimationExValue = NSValue(cgRect: squareExpanded)
+        boundsAnimation.values = [ boundsAnimationFromValue,
+                                   boundsAnimationToValue,
+                                   boundsAnimationExValue ]
+        boundsAnimation.timingFunctions = [ timingFunc,
+                                            timingFunc]
+        boundsAnimation.keyTimes = [firstPart, secondPart, lastPart]
+        boundsAnimation.duration = fullDuration
+        
+        let positionAnimation = CAKeyframeAnimation(keyPath: "position")
+        let fromPosition = CGPoint(x: initial.midX, y: initial.midY)
+        let toPosition = CGPoint(x: destination.midX, y: destination.midY)
+        positionAnimation.values = [ NSValue(cgPoint: fromPosition),
+                                     NSValue(cgPoint: toPosition),
+                                     NSValue(cgPoint: toPosition) ]
+        positionAnimation.timingFunctions = [ timingFunc,
+                                              timingFunc ]
+        positionAnimation.keyTimes = [firstPart, secondPart, lastPart]
+        positionAnimation.duration = fullDuration
+        
+        let cornersAnimation = CAKeyframeAnimation(keyPath: "cornerRadius")
+        cornersAnimation.values = [ minInitialSide / 2,
+                                    minDestinationSide / 2,
+                                    minExpandedSide / 2 ]
+        cornersAnimation.timingFunctions = [ timingFunc,
+                                             timingFunc ]
+        cornersAnimation.keyTimes = [firstPart, secondPart, lastPart]
+        cornersAnimation.duration = fullDuration
+        
+        let pathAnimation = CAKeyframeAnimation(keyPath: "path")
+        let fromPath = CGPath(ellipseIn: squareInitial, transform: nil)
+        let toPath = CGPath(ellipseIn: squareDestination, transform: nil)
+        let exPath = CGPath(ellipseIn: squareExpanded, transform: nil)
+        pathAnimation.values = [ fromPath,
+                                 toPath,
+                                 exPath ]
+        pathAnimation.timingFunctions = [ timingFunc,
+                                          timingFunc ]
+        pathAnimation.keyTimes = [firstPart, secondPart, lastPart]
+        pathAnimation.duration = fullDuration
+        
+        let borderGroup = CAAnimationGroup()
+        borderGroup.duration = fullDuration
+        borderGroup.animations = [boundsAnimation, positionAnimation, cornersAnimation]
+        
+        let maskGroup = CAAnimationGroup()
+        maskGroup.delegate = self
+        maskGroup.duration = fullDuration
+        maskGroup.animations = [boundsAnimation, positionAnimation, pathAnimation]
+        
+        borderCircle.cornerRadius = minExpandedSide / 2
+        borderCircle.add(borderGroup, forKey: "Resizing border")
+        maskLayer.path = exPath
+        maskLayer.bounds = squareExpanded
+        maskLayer.position = toPosition
+        maskLayer.add(maskGroup, forKey: "Resizing circle mask")
+        
+        expandedRect = squareExpanded
+    }
+    
+    //MARK: - CAAnimation Delegate
+    
+    public func animationDidStop(_ anim: CAAnimation, finished flag: Bool) {
+        animationCompletion?()
+    }
+    
     //MARK: - Helpers
     
     func setupOptionsForAnimation(animation: CAAnimationGroup, options: UIViewAnimationOptions) {
-        var functionName: String?
+        animation.timingFunction = self.mediaTimingFunction(for: options)
+        if options.contains(.autoreverse) {
+            animation.autoreverses = true
+        }
+        if options.contains(.repeat) {
+            animation.repeatCount = MAXFLOAT
+        }
+    }
+    
+    func mediaTimingFunction(for options: UIViewAnimationOptions) -> CAMediaTimingFunction {
+        var functionName = kCAMediaTimingFunctionLinear
         if options.contains(.curveLinear) {
             functionName = kCAMediaTimingFunctionLinear
         } else if options.contains(.curveEaseIn) {
@@ -138,16 +230,17 @@ class RoundedImageView: UIImageView {
         } else if options.contains(.curveEaseInOut) {
             functionName = kCAMediaTimingFunctionEaseInEaseOut
         }
-        
-        if let functionName = functionName {
-            animation.timingFunction = CAMediaTimingFunction(name: functionName)
-        }
-        if options.contains(.autoreverse) {
-            animation.autoreverses = true
-        }
-        if options.contains(.repeat) {
-            animation.repeatCount = MAXFLOAT
-        }
+        return CAMediaTimingFunction(name: functionName)
     }
-
+    
+    
+    func containingCircleRect(for rect: CGRect) -> CGRect {
+        let height = rect.height
+        let width = rect.width
+        let diameter = sqrt((height * height) + (width * width))
+        let newX = rect.origin.x - (diameter - width) / 2
+        let newY = rect.origin.y - (diameter - height) / 2
+        let containerRect = CGRect(x: newX, y: newY, width: diameter, height: diameter)
+        return containerRect
+    }
 }

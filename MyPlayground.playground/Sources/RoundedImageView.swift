@@ -9,11 +9,11 @@
 import UIKit
 
 @IBDesignable
-public class RoundedImageView: UIImageView {
+public class RoundedImageView: UIImageView, CAAnimationDelegate {
     let maskLayer = CAShapeLayer()
     let borderCircle = CAShapeLayer()
-    public var updatedRect: CGRect? = nil
-    
+    var expandedRect: CGRect? = nil
+    public var animationCompletion: (()->())?
     
     convenience init() {
         self.init(image: nil)
@@ -42,7 +42,7 @@ public class RoundedImageView: UIImageView {
     }
     
     override public func layoutSubviews() {
-        updateRoundedLayers(for: updatedRect)
+        updateRoundedLayers(for: expandedRect)
         super.layoutSubviews()
     }
     
@@ -125,44 +125,6 @@ public class RoundedImageView: UIImageView {
         maskLayer.add(maskGroup, forKey: "Resizing circle mask")
     }
     
-    //MARK: - Helpers
-    
-    func setupOptionsForAnimation(animation: CAAnimationGroup, options: UIViewAnimationOptions) {
-        animation.timingFunction = self.mediaTimingFunction(for: options)
-        if options.contains(.autoreverse) {
-            animation.autoreverses = true
-        }
-        if options.contains(.repeat) {
-            animation.repeatCount = MAXFLOAT
-        }
-    }
-    
-    func mediaTimingFunction(for options: UIViewAnimationOptions) -> CAMediaTimingFunction {
-        var functionName = kCAMediaTimingFunctionLinear
-        if options.contains(.curveLinear) {
-            functionName = kCAMediaTimingFunctionLinear
-        } else if options.contains(.curveEaseIn) {
-            functionName = kCAMediaTimingFunctionEaseIn
-        } else if options.contains(.curveEaseOut) {
-            functionName = kCAMediaTimingFunctionEaseOut
-        } else if options.contains(.curveEaseInOut) {
-            functionName = kCAMediaTimingFunctionEaseInEaseOut
-        }
-        print("Timing function = \(functionName)")
-        return CAMediaTimingFunction(name: functionName)
-    }
-    
-    
-    func containingCircleRect(for rect: CGRect) -> CGRect {
-        let height = rect.height
-        let width = rect.width
-        let diameter = sqrt((height * height) + (width * width))
-        let newX = rect.origin.x - (diameter - width) / 2
-        let newY = rect.origin.y - (diameter - height) / 2
-        let containerRect = CGRect(x: newX, y: newY, width: diameter, height: diameter)
-        return containerRect
-    }
-    
     public func animateImageViewWithExpand(initial: CGRect, destination: CGRect, duration: TimeInterval, options: UIViewAnimationOptions = []) {
         let minInitialSide = min(initial.width, initial.height)
         let minDestinationSide = min(destination.width, destination.height)
@@ -225,6 +187,7 @@ public class RoundedImageView: UIImageView {
         borderGroup.animations = [boundsAnimation, positionAnimation, cornersAnimation]
         
         let maskGroup = CAAnimationGroup()
+        maskGroup.delegate = self
         maskGroup.duration = fullDuration
         maskGroup.animations = [boundsAnimation, positionAnimation, pathAnimation]
         
@@ -235,6 +198,48 @@ public class RoundedImageView: UIImageView {
         maskLayer.position = toPosition
         maskLayer.add(maskGroup, forKey: "Resizing circle mask")
         
-        updatedRect = squareExpanded
+        expandedRect = squareExpanded
+    }
+    
+    //MARK: - CAAnimation Delegate
+    
+    public func animationDidStop(_ anim: CAAnimation, finished flag: Bool) {
+        animationCompletion?()
+    }
+    
+    //MARK: - Helpers
+    
+    func setupOptionsForAnimation(animation: CAAnimationGroup, options: UIViewAnimationOptions) {
+        animation.timingFunction = self.mediaTimingFunction(for: options)
+        if options.contains(.autoreverse) {
+            animation.autoreverses = true
+        }
+        if options.contains(.repeat) {
+            animation.repeatCount = MAXFLOAT
+        }
+    }
+    
+    func mediaTimingFunction(for options: UIViewAnimationOptions) -> CAMediaTimingFunction {
+        var functionName = kCAMediaTimingFunctionLinear
+        if options.contains(.curveLinear) {
+            functionName = kCAMediaTimingFunctionLinear
+        } else if options.contains(.curveEaseIn) {
+            functionName = kCAMediaTimingFunctionEaseIn
+        } else if options.contains(.curveEaseOut) {
+            functionName = kCAMediaTimingFunctionEaseOut
+        } else if options.contains(.curveEaseInOut) {
+            functionName = kCAMediaTimingFunctionEaseInEaseOut
+        }
+        return CAMediaTimingFunction(name: functionName)
+    }
+    
+    func containingCircleRect(for rect: CGRect) -> CGRect {
+        let height = rect.height
+        let width = rect.width
+        let diameter = sqrt((height * height) + (width * width))
+        let newX = rect.origin.x - (diameter - width) / 2
+        let newY = rect.origin.y - (diameter - height) / 2
+        let containerRect = CGRect(x: newX, y: newY, width: diameter, height: diameter)
+        return containerRect
     }
 }

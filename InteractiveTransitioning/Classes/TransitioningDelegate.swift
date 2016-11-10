@@ -33,42 +33,41 @@ class AnimationController: NSObject, UIViewControllerAnimatedTransitioning {
     }
     
     func animateTransition(using transitionContext: UIViewControllerContextTransitioning) {
+        
+        //Prepare superview
         let fromVC = transitionContext.viewController(forKey: .from) as? ThumbImageViewController
         guard let originalRoundedView = fromVC?.thumbImageView  else { return }
         let toView = transitionContext.view(forKey: .to)!
         let containerView = transitionContext.containerView
-        
-        let copyRoundedView = RoundedImageView(image: originalRoundedView.image)
-        copyRoundedView.frame = originalRoundedView.frame
         containerView.addSubview(toView)
         toView.isHidden = true
-        containerView.addSubview(copyRoundedView)
         originalRoundedView.isHidden = true
+        
+        //Setup animatable view
+        let copyRoundedView = RoundedImageView(image: originalRoundedView.image)
+        copyRoundedView.frame = originalRoundedView.frame
+        containerView.addSubview(copyRoundedView)
         setupViewFullScreenConstraints(roundedView: copyRoundedView)
-        containerView.layoutIfNeeded()
+        let initialRect = originalRoundedView.bounds
+        let destinationRect = toView.bounds
         
-        let initialBounds = copyRoundedView.bounds
-        let containigCircleRect = self.containingCircleRect(for: initialBounds)
-//        var rectWithOffset = containigCircleRect
-//        rectWithOffset.origin.x += 195/2.0
-//        copyRoundedView.updatedRect = rectWithOffset
-        
-        let options: UIViewAnimationOptions = []
+        // Animate
+        let options: UIViewAnimationOptions = [.curveEaseInOut]
         UIView.animate(withDuration: duration, delay: 0, options: options, animations: {
-            print("Start animating")
-            copyRoundedView.animateFrameAndPathOfImageView(initial: initialBounds, destination: containigCircleRect, duration: self.duration, options: options)
-            copyRoundedView.alpha = 0.99
-        }, completion: { state in
+            containerView.layoutIfNeeded()
+        })
+        copyRoundedView.animateImageViewWithExpand(initial: initialRect, destination: destinationRect, duration: duration, options: options)
+        copyRoundedView.animationCompletion = {
             toView.isHidden = false
             originalRoundedView.isHidden = false
             copyRoundedView.removeFromSuperview()
             transitionContext.completeTransition(true)
-        })
+        }
     }
     
    
     func myAnimateTransition(using transitionContext: UIViewControllerContextTransitioning) {
-        if isPresentingTransition(transitionContext: transitionContext) {
+        if isPresenting(transition: transitionContext) {
             propertyAnimator = propertyAnimatorForPresenting(using: transitionContext)
         } else {
             propertyAnimator = propertyAnimatorForDismissing(using: transitionContext)
@@ -154,8 +153,8 @@ class AnimationController: NSObject, UIViewControllerAnimatedTransitioning {
         return animator
     }
     
-    private func isPresentingTransition(transitionContext: UIViewControllerContextTransitioning) -> Bool {
-        guard let toVC = transitionContext.viewController(forKey: .from) else {
+    private func isPresenting(transition: UIViewControllerContextTransitioning) -> Bool {
+        guard let toVC = transition.viewController(forKey: .from) else {
             return true
         }
         let isPresentingFull = toVC is ThumbImageViewController
