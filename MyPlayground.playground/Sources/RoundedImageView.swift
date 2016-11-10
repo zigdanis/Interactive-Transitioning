@@ -12,7 +12,7 @@ import UIKit
 public class RoundedImageView: UIImageView {
     let maskLayer = CAShapeLayer()
     let borderCircle = CAShapeLayer()
-    var updatedRect: CGRect? = nil
+    public var updatedRect: CGRect? = nil
     
     
     convenience init() {
@@ -76,7 +76,8 @@ public class RoundedImageView: UIImageView {
         
         let arcPath = CGPath(ellipseIn: squareInCenter, transform: nil)
         maskLayer.path = arcPath
-        maskLayer.frame = aBounds
+        maskLayer.bounds = aBounds
+        maskLayer.position = CGPoint(x: aBounds.midX, y: aBounds.midY)
     }
     
     //MARK: - Public
@@ -150,22 +151,31 @@ public class RoundedImageView: UIImageView {
     }
     
     
+    func containingCircleRect(for rect: CGRect) -> CGRect {
+        let height = rect.height
+        let width = rect.width
+        let diameter = sqrt((height * height) + (width * width))
+        let newX = rect.origin.x - (diameter - width) / 2
+        let newY = rect.origin.y - (diameter - height) / 2
+        let containerRect = CGRect(x: newX, y: newY, width: diameter, height: diameter)
+        return containerRect
+    }
     
-    
-    public func animateFrameAndPathOfImageViewBackAndForth(initial: CGRect, destination: CGRect, duration: TimeInterval, options: UIViewAnimationOptions = []) {
+    public func animateImageViewWithExpand(initial: CGRect, destination: CGRect, duration: TimeInterval, options: UIViewAnimationOptions = []) {
         let minInitialSide = min(initial.width, initial.height)
         let minDestinationSide = min(destination.width, destination.height)
         let squareInitial = CGRect(x: 0, y: 0, width: minInitialSide, height: minInitialSide)
         let squareDestination = CGRect(x: 0, y: 0, width: minDestinationSide, height: minDestinationSide)
-        let half: NSNumber = 0.5
+        let squareExpanded = containingCircleRect(for: destination)
+        let minExpandedSide = squareExpanded.size.width
         
         let boundsAnimation = CAKeyframeAnimation(keyPath: "bounds")
         let boundsAnimationFromValue = NSValue(cgRect: squareInitial)
         let boundsAnimationToValue = NSValue(cgRect: squareDestination)
+        let boundsAnimationExValue = NSValue(cgRect: squareExpanded)
         boundsAnimation.values = [ boundsAnimationFromValue,
                                    boundsAnimationToValue,
-                                   boundsAnimationFromValue ]
-//        boundsAnimation.keyTimes = [half, half]
+                                   boundsAnimationExValue ]
         boundsAnimation.timingFunctions = [
             CAMediaTimingFunction(name: kCAMediaTimingFunctionLinear),
             CAMediaTimingFunction(name: kCAMediaTimingFunctionLinear) ]
@@ -176,8 +186,7 @@ public class RoundedImageView: UIImageView {
         let toPosition = CGPoint(x: destination.midX, y: destination.midY)
         positionAnimation.values = [ NSValue(cgPoint: fromPosition),
                                      NSValue(cgPoint: toPosition),
-                                     NSValue(cgPoint: fromPosition) ]
-//        positionAnimation.keyTimes = [half, half]
+                                     NSValue(cgPoint: toPosition) ]
         positionAnimation.timingFunctions = [
             CAMediaTimingFunction(name: kCAMediaTimingFunctionLinear),
             CAMediaTimingFunction(name: kCAMediaTimingFunctionLinear) ]
@@ -186,8 +195,7 @@ public class RoundedImageView: UIImageView {
         let cornersAnimation = CAKeyframeAnimation(keyPath: "cornerRadius")
         cornersAnimation.values = [ minInitialSide / 2,
                                     minDestinationSide / 2,
-                                    minInitialSide / 2 ]
-//        cornersAnimation.keyTimes = [half, half]
+                                    minExpandedSide / 2 ]
         cornersAnimation.timingFunctions = [
             CAMediaTimingFunction(name: kCAMediaTimingFunctionLinear),
             CAMediaTimingFunction(name: kCAMediaTimingFunctionLinear) ]
@@ -196,10 +204,10 @@ public class RoundedImageView: UIImageView {
         let pathAnimation = CAKeyframeAnimation(keyPath: "path")
         let fromPath = CGPath(ellipseIn: squareInitial, transform: nil)
         let toPath = CGPath(ellipseIn: squareDestination, transform: nil)
+        let exPath = CGPath(ellipseIn: squareExpanded, transform: nil)
         pathAnimation.values = [ fromPath,
                                  toPath,
-                                 fromPath ]
-//        pathAnimation.keyTimes = [half, half]
+                                 exPath ]
         pathAnimation.timingFunctions = [
             CAMediaTimingFunction(name: kCAMediaTimingFunctionLinear),
             CAMediaTimingFunction(name: kCAMediaTimingFunctionLinear) ]
@@ -215,11 +223,13 @@ public class RoundedImageView: UIImageView {
         maskGroup.animations = [boundsAnimation, positionAnimation, pathAnimation]
         setupOptionsForAnimation(animation: maskGroup, options: options)
         
-//        borderCircle.cornerRadius = minDestinationSide / 2
+        borderCircle.cornerRadius = minExpandedSide / 2
         borderCircle.add(borderGroup, forKey: "Resizing border")
-//        maskLayer.path = toPath
-//        maskLayer.bounds = squareDestination
-//        maskLayer.position = toPosition
+        maskLayer.path = exPath
+        maskLayer.frame = squareExpanded
+        maskLayer.position = toPosition
         maskLayer.add(maskGroup, forKey: "Resizing circle mask")
+        
+        updatedRect = squareExpanded
     }
 }

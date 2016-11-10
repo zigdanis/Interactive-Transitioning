@@ -48,24 +48,6 @@ func FsmallConstraintsF() -> [NSLayoutConstraint] {
 var fullConstraints = FfullConstraints()
 var smallConstraints = FsmallConstraintsF()
 
-func animate() {
-//    let consts = setupSmallConstraints()
-    containerView.layoutIfNeeded()
-    let initialRect = roundedView.bounds
-//    NSLayoutConstraint.deactivate(consts)
-//    setupFullConstraints()
-    
-    let options: UIViewAnimationOptions = []
-    UIView.animate(withDuration: duration, delay: 0, options: options, animations: {
-        containerView.layoutIfNeeded()
-        let destinationRect = roundedView.bounds
-        let containerRect = containingCircleRect(for: destinationRect)
-        print("initial = \(initialRect)")
-        print("destination = \(destinationRect)")
-        print("container = \(containerRect)")
-        roundedView.animateFrameAndPathOfImageView(initial: initialRect, destination: containerRect, duration: duration, options: options)
-    })
-}
 
 func keyFrameAnimation() {
     NSLayoutConstraint.activate(smallConstraints)
@@ -79,28 +61,14 @@ func keyFrameAnimation() {
     NSLayoutConstraint.activate(smallConstraints)
     containerView.layoutIfNeeded()
     
-    UIView.animateKeyframes(withDuration: duration, delay: 0, options: [.calculationModeLinear], animations: {
-        UIView.addKeyframe(withRelativeStartTime: 0, relativeDuration: 0.5, animations: {
-            containerView.backgroundColor = UIColor.yellow
-            NSLayoutConstraint.deactivate(smallConstraints)
-            NSLayoutConstraint.activate(fullConstraints)
-            containerView.layoutIfNeeded()
-        })
-        UIView.addKeyframe(withRelativeStartTime: 0.5, relativeDuration: 0.5, animations: {
-            containerView.backgroundColor = UIColor.blue
-            NSLayoutConstraint.deactivate(fullConstraints)
-            NSLayoutConstraint.activate(smallConstraints)
-            containerView.layoutIfNeeded()
-        })
-    })
-    print("initial 2 = \(initialRect)")
-    print("destination 2 = \(destinationRect)")
-    roundedView.animateFrameAndPathOfImageViewBackAndForth(initial: initialRect, destination: destinationRect, duration: duration, options: [])
+    let options: UIViewAnimationOptions = [.curveLinear]
+    UIView.animate(withDuration: duration/2, delay: 0, options: options, animations: {
+        NSLayoutConstraint.deactivate(smallConstraints)
+        NSLayoutConstraint.activate(fullConstraints)
+        containerView.layoutIfNeeded()
+    }, completion: nil)
+    
+    roundedView.animateImageViewWithExpand(initial: initialRect, destination: destinationRect, duration: duration, options: [.curveLinear])
 }
 
-
-
 keyFrameAnimation()
-
-//animate()
-
