@@ -5,7 +5,6 @@ import PlaygroundSupport
 
 var str = "Hello, playground"
 
-
 let containerView = UIView(frame: CGRect(x: 0, y: 0, width: 500, height: 500))
 containerView.backgroundColor = UIColor.red
 PlaygroundPage.current.liveView = containerView
@@ -48,27 +47,23 @@ func FsmallConstraintsF() -> [NSLayoutConstraint] {
 var fullConstraints = FfullConstraints()
 var smallConstraints = FsmallConstraintsF()
 
-
 func keyFrameAnimation() {
-    NSLayoutConstraint.activate(smallConstraints)
-    containerView.layoutIfNeeded()
-    let initialRect = roundedView.bounds
-    NSLayoutConstraint.deactivate(smallConstraints)
     NSLayoutConstraint.activate(fullConstraints)
     containerView.layoutIfNeeded()
     let destinationRect = roundedView.bounds
     NSLayoutConstraint.deactivate(fullConstraints)
     NSLayoutConstraint.activate(smallConstraints)
     containerView.layoutIfNeeded()
+    let initialRect = roundedView.bounds
     
-    let options: UIViewAnimationOptions = [.curveLinear]
-    UIView.animate(withDuration: duration/2, delay: 0, options: options, animations: {
+    let options: UIViewAnimationOptions = [.curveEaseInOut]
+    UIView.animate(withDuration: duration, delay: 0, options: options, animations: {
         NSLayoutConstraint.deactivate(smallConstraints)
         NSLayoutConstraint.activate(fullConstraints)
         containerView.layoutIfNeeded()
     }, completion: nil)
     
-    roundedView.animateImageViewWithExpand(initial: initialRect, destination: destinationRect, duration: duration, options: [.curveLinear])
+    roundedView.animateImageViewWithExpand(initial: initialRect, destination: destinationRect, duration: duration, options: options)
 }
 
 keyFrameAnimation()
