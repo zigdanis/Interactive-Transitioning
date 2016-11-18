@@ -82,48 +82,6 @@ public class RoundedImageView: UIImageView, CAAnimationDelegate {
     
     //MARK: - Public
     
-    public func animateFrameAndPathOfImageView(initial: CGRect, destination: CGRect, duration: TimeInterval, options: UIViewAnimationOptions = []) {
-        let minInitialSide = min(initial.width, initial.height)
-        let minDestinationSide = min(destination.width, destination.height)
-        let squareInitial = CGRect(x: 0, y: 0, width: minInitialSide, height: minInitialSide)
-        let squareDestination = CGRect(x: 0, y: 0, width: minDestinationSide, height: minDestinationSide)
-        
-        let boundsAnimation = CABasicAnimation(keyPath: "bounds")
-        boundsAnimation.fromValue = NSValue(cgRect: squareInitial)
-        boundsAnimation.toValue = NSValue(cgRect: squareDestination)
-        
-        let positionAnimation = CABasicAnimation(keyPath: "position")
-        let fromPosition = CGPoint(x: initial.midX, y: initial.midY)
-        let toPosition = CGPoint(x: destination.midX, y: destination.midY)
-        positionAnimation.fromValue = NSValue(cgPoint: fromPosition)
-        positionAnimation.toValue = NSValue(cgPoint: toPosition)
-        
-        let cornersAnimation = CABasicAnimation(keyPath: "cornerRadius")
-        cornersAnimation.fromValue = minInitialSide / 2
-        cornersAnimation.toValue = minDestinationSide / 2
-        
-        let pathAnimation = CABasicAnimation(keyPath: "path")
-        pathAnimation.fromValue = CGPath(ellipseIn: squareInitial, transform: nil)
-        let toPath = CGPath(ellipseIn: squareDestination, transform: nil)
-        pathAnimation.toValue = toPath
-        
-        let borderGroup = CAAnimationGroup()
-        borderGroup.duration = duration
-        borderGroup.animations = [boundsAnimation, positionAnimation, cornersAnimation]
-        setupOptionsForAnimation(animation: borderGroup, options: options)
-        
-        let maskGroup = CAAnimationGroup()
-        maskGroup.duration = duration
-        maskGroup.animations = [boundsAnimation, positionAnimation, pathAnimation]
-        setupOptionsForAnimation(animation: maskGroup, options: options)
-        
-        borderCircle.cornerRadius = minDestinationSide / 2
-        borderCircle.add(borderGroup, forKey: "Resizing border")
-        maskLayer.path = toPath
-        maskLayer.bounds = squareDestination
-        maskLayer.position = toPosition
-        maskLayer.add(maskGroup, forKey: "Resizing circle mask")
-    }
     
     public func animateImageViewWithExpand(initial: CGRect, destination: CGRect, duration: TimeInterval, options: UIViewAnimationOptions = []) {
         let minInitialSide = min(initial.width, initial.height)

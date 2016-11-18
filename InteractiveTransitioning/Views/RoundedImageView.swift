@@ -8,6 +8,11 @@
 
 import UIKit
 
+enum ReSizeAction {
+    case Expand
+    case Collapse
+}
+
 @IBDesignable
 class RoundedImageView: UIImageView, CAAnimationDelegate {
     let maskLayer = CAShapeLayer()
@@ -82,106 +87,90 @@ class RoundedImageView: UIImageView, CAAnimationDelegate {
     }
     
     //MARK: - Public
-    
-    func animateFrameAndPathOfImageView(initial: CGRect, destination: CGRect, duration: TimeInterval, options: UIViewAnimationOptions = []) {
-        let minInitialSide = min(initial.width, initial.height)
-        let minDestinationSide = min(destination.width, destination.height)
-        let squareInitial = CGRect(x: 0, y: 0, width: minInitialSide, height: minInitialSide)
-        let squareDestination = CGRect(x: 0, y: 0, width: minDestinationSide, height: minDestinationSide)
+
+    func setup(animation: CAKeyframeAnimation, with options:UIViewAnimationOptions, duration: TimeInterval, action: ReSizeAction) {
+        let timingFunc = mediaTimingFunction(for: options)
+        let linear = CAMediaTimingFunction(name: kCAMediaTimingFunctionLinear)
+        let timingFunctions = action == .Expand ? [ timingFunc, linear] : [ linear, timingFunc]
+        let fullDuration = duration + duration * expandingMultiplier
+        let intermediate = action == .Expand ?
+            NSNumber(value: duration / fullDuration) :
+            NSNumber(value: 1 - duration / fullDuration)
+        let keyTimes = [NSNumber(value: 0), intermediate, NSNumber(value: 1)]
         
-        let boundsAnimation = CABasicAnimation(keyPath: "bounds")
-        boundsAnimation.fromValue = NSValue(cgRect: squareInitial)
-        boundsAnimation.toValue = NSValue(cgRect: squareDestination)
-        
-        let positionAnimation = CABasicAnimation(keyPath: "position")
-        let fromPosition = CGPoint(x: initial.midX, y: initial.midY)
-        let toPosition = CGPoint(x: destination.midX, y: destination.midY)
-        positionAnimation.fromValue = NSValue(cgPoint: fromPosition)
-        positionAnimation.toValue = NSValue(cgPoint: toPosition)
-        
-        let cornersAnimation = CABasicAnimation(keyPath: "cornerRadius")
-        cornersAnimation.fromValue = minInitialSide / 2
-        cornersAnimation.toValue = minDestinationSide / 2
-        
-        let pathAnimation = CABasicAnimation(keyPath: "path")
-        pathAnimation.fromValue = CGPath(ellipseIn: squareInitial, transform: nil)
-        let toPath = CGPath(ellipseIn: squareDestination, transform: nil)
-        pathAnimation.toValue = toPath
-        
-        let borderGroup = CAAnimationGroup()
-        borderGroup.duration = duration
-        borderGroup.animations = [boundsAnimation, positionAnimation, cornersAnimation]
-        setupOptionsForAnimation(animation: borderGroup, options: options)
-        
-        let maskGroup = CAAnimationGroup()
-        maskGroup.duration = duration
-        maskGroup.animations = [boundsAnimation, positionAnimation, pathAnimation]
-        setupOptionsForAnimation(animation: maskGroup, options: options)
-        
-        borderCircle.cornerRadius = minDestinationSide / 2
-        borderCircle.add(borderGroup, forKey: "Resizing border")
-        maskLayer.path = toPath
-        maskLayer.bounds = squareDestination
-        maskLayer.position = toPosition
-        maskLayer.add(maskGroup, forKey: "Resizing circle mask")
+        animation.timingFunctions = timingFunctions
+        animation.keyTimes = keyTimes
+        animation.duration = fullDuration
     }
     
-    func animateImageViewWithExpand(initial: CGRect, destination: CGRect, duration: TimeInterval, options: UIViewAnimationOptions = []) {
+    func animateImageViewWith(action: ReSizeAction, initial: CGRect, destination: CGRect, duration: TimeInterval, options: UIViewAnimationOptions = []) {
         let minInitialSide = min(initial.width, initial.height)
         let minDestinationSide = min(destination.width, destination.height)
         let squareInitial = CGRect(x: 0, y: 0, width: minInitialSide, height: minInitialSide)
-        let squareDestination = CGRect(x: 0, y: 0, width: minDestinationSide, height: minDestinationSide)
-        let squareExpanded = containingCircleRect(for: destination)
-        let minExpandedSide = squareExpanded.size.width
-        let timingFunc = mediaTimingFunction(for: options)
+        let x = destination.midX - minDestinationSide/2
+        let y = destination.midY - minDestinationSide/2
+        let squareDestination = CGRect(x: x, y: y, width: minDestinationSide, height: minDestinationSide)
+        let squareResized = containingCircleRect(for: action == .Expand ? destination : initial)
+        let minExpandedSide = squareResized.size.width
         let fullDuration = duration + duration * expandingMultiplier
-        let firstPart = NSNumber(value: 0)
-        let secondPart = NSNumber(value: duration / fullDuration)
-        let lastPart = NSNumber(value: 1)
         
         let boundsAnimation = CAKeyframeAnimation(keyPath: "bounds")
         let boundsAnimationFromValue = NSValue(cgRect: squareInitial)
         let boundsAnimationToValue = NSValue(cgRect: squareDestination)
-        let boundsAnimationExValue = NSValue(cgRect: squareExpanded)
-        boundsAnimation.values = [ boundsAnimationFromValue,
-                                   boundsAnimationToValue,
-                                   boundsAnimationExValue ]
-        boundsAnimation.timingFunctions = [ timingFunc,
-                                            timingFunc]
-        boundsAnimation.keyTimes = [firstPart, secondPart, lastPart]
-        boundsAnimation.duration = fullDuration
+        let boundsAnimationExValue = NSValue(cgRect: squareResized)
+        if action == .Expand {
+            boundsAnimation.values = [ boundsAnimationFromValue,
+                                       boundsAnimationToValue,
+                                       boundsAnimationExValue ]
+        } else {
+            boundsAnimation.values = [ boundsAnimationExValue,
+                                       boundsAnimationFromValue,
+                                       boundsAnimationToValue ]
+        }
+        setup(animation: boundsAnimation, with: options, duration: duration, action: action)
         
         let positionAnimation = CAKeyframeAnimation(keyPath: "position")
         let fromPosition = CGPoint(x: initial.midX, y: initial.midY)
         let toPosition = CGPoint(x: destination.midX, y: destination.midY)
-        positionAnimation.values = [ NSValue(cgPoint: fromPosition),
-                                     NSValue(cgPoint: toPosition),
-                                     NSValue(cgPoint: toPosition) ]
-        positionAnimation.timingFunctions = [ timingFunc,
-                                              timingFunc ]
-        positionAnimation.keyTimes = [firstPart, secondPart, lastPart]
-        positionAnimation.duration = fullDuration
+        let exPosition = CGPoint(x: squareResized.midX, y: squareResized.midY)
+        if action == .Expand {
+            positionAnimation.values = [ NSValue(cgPoint: fromPosition),
+                                         NSValue(cgPoint: toPosition),
+                                         NSValue(cgPoint: exPosition) ]
+        } else {
+            positionAnimation.values = [ NSValue(cgPoint: exPosition) ,
+                                         NSValue(cgPoint: fromPosition),
+                                         NSValue(cgPoint: toPosition) ]
+        }
+        
+        setup(animation: positionAnimation, with: options, duration: duration, action: action)
         
         let cornersAnimation = CAKeyframeAnimation(keyPath: "cornerRadius")
-        cornersAnimation.values = [ minInitialSide / 2,
-                                    minDestinationSide / 2,
-                                    minExpandedSide / 2 ]
-        cornersAnimation.timingFunctions = [ timingFunc,
-                                             timingFunc ]
-        cornersAnimation.keyTimes = [firstPart, secondPart, lastPart]
-        cornersAnimation.duration = fullDuration
+        if action == .Expand {
+            cornersAnimation.values = [ minInitialSide / 2,
+                                        minDestinationSide / 2,
+                                        minExpandedSide / 2 ]
+        } else {
+            cornersAnimation.values = [ minExpandedSide / 2,
+                                        minInitialSide / 2,
+                                        minDestinationSide / 2 ]
+        }
+        setup(animation: cornersAnimation, with: options, duration: duration, action: action)
         
         let pathAnimation = CAKeyframeAnimation(keyPath: "path")
         let fromPath = CGPath(ellipseIn: squareInitial, transform: nil)
         let toPath = CGPath(ellipseIn: squareDestination, transform: nil)
-        let exPath = CGPath(ellipseIn: squareExpanded, transform: nil)
+        let exPath = CGPath(ellipseIn: squareResized, transform: nil)
+        if action == .Expand {
         pathAnimation.values = [ fromPath,
                                  toPath,
                                  exPath ]
-        pathAnimation.timingFunctions = [ timingFunc,
-                                          timingFunc ]
-        pathAnimation.keyTimes = [firstPart, secondPart, lastPart]
-        pathAnimation.duration = fullDuration
+        } else {
+            pathAnimation.values = [ exPath,
+                                     fromPath,
+                                     toPath ]
+        }
+        setup(animation: pathAnimation, with: options, duration: duration, action: action)
         
         let borderGroup = CAAnimationGroup()
         borderGroup.duration = fullDuration
@@ -192,14 +181,18 @@ class RoundedImageView: UIImageView, CAAnimationDelegate {
         maskGroup.duration = fullDuration
         maskGroup.animations = [boundsAnimation, positionAnimation, pathAnimation]
         
-        borderCircle.cornerRadius = minExpandedSide / 2
+        borderCircle.cornerRadius = action == .Expand ? minExpandedSide / 2 : minDestinationSide / 2
         borderCircle.add(borderGroup, forKey: "Resizing border")
-        maskLayer.path = exPath
-        maskLayer.bounds = squareExpanded
+        maskLayer.path = action == .Expand ? exPath : toPath
+        maskLayer.bounds = action == .Expand ? squareResized : destination
         maskLayer.position = toPosition
         maskLayer.add(maskGroup, forKey: "Resizing circle mask")
         
-        expandedRect = squareExpanded
+        if action == .Expand {
+            expandedRect = squareResized
+        } else {
+            expandedRect = nil
+        }
     }
     
     //MARK: - CAAnimation Delegate

@@ -15,6 +15,7 @@ class FullImageViewController: UIViewController {
     override func viewDidLoad() {
         super.viewDidLoad()
         setupNavigationBar()
+        view.backgroundColor = UIColor.groupTableViewBackground
     }
     
     func setupNavigationBar() {

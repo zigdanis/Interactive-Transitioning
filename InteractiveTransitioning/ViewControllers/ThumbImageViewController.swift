@@ -18,6 +18,7 @@ class ThumbImageViewController: UIViewController {
         super.viewDidLoad()
         setupGestureRecognizers()
         startPoint = thumbImageView.center
+        view.backgroundColor = UIColor.groupTableViewBackground
     }
     
     func setupGestureRecognizers() {
