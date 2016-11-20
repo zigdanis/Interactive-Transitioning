@@ -26,10 +26,12 @@ class TransitioningDelegate: NSObject, UIViewControllerTransitioningDelegate {
 class AnimationController: NSObject, UIViewControllerAnimatedTransitioning {
     
     let duration:TimeInterval = 1.0
+    let expandingMultiplier = 1/20.0
+    var fullDuration:TimeInterval { get { return duration + duration * expandingMultiplier } }
     var propertyAnimator: UIViewPropertyAnimator?
     
     func transitionDuration(using transitionContext: UIViewControllerContextTransitioning?) -> TimeInterval {
-        return duration
+        return fullDuration
     }
     
     func animateTransition(using transitionContext: UIViewControllerContextTransitioning) {
@@ -53,7 +55,6 @@ class AnimationController: NSObject, UIViewControllerAnimatedTransitioning {
         originalRoundedView.isHidden = true
         
         //Setup animatable view
-        let expandingMultiplier = 1/20.0
         let copyRoundedView = RoundedImageView(image: originalRoundedView.image)
         copyRoundedView.expandingMultiplier = expandingMultiplier
         copyRoundedView.frame = originalRoundedView.frame
@@ -63,17 +64,16 @@ class AnimationController: NSObject, UIViewControllerAnimatedTransitioning {
         let destinationRect = toView.bounds
         
         // Create animator
-        let totalDuration = duration + duration * expandingMultiplier
-        let timing = UICubicTimingParameters(animationCurve: .linear)
-        let animator = UIViewPropertyAnimator(duration: totalDuration, timingParameters: timing)
-        let relativeStart = duration/totalDuration
+        let timing = UICubicTimingParameters(animationCurve: .easeInOut)
+        let animator = UIViewPropertyAnimator(duration: fullDuration, timingParameters: timing)
+        let relativeStart = duration/fullDuration
         animator.addAnimations {
-            UIView.animateKeyframes(withDuration: totalDuration, delay: 0, options: [.calculationModeLinear], animations: {
+            UIView.animateKeyframes(withDuration: self.fullDuration, delay: 0, options: [.calculationModeLinear], animations: {
                 UIView.addKeyframe(withRelativeStartTime: 0, relativeDuration: relativeStart, animations: {
                     containerView.layoutIfNeeded()
                 })
             })
-            copyRoundedView.animateImageViewWith(action: .Expand, initial: initialRect, destination: destinationRect, duration: self.duration, options: [.curveLinear])
+            copyRoundedView.animateImageViewWith(action: .Expand, initial: initialRect, destination: destinationRect, duration: self.duration, options: [.curveEaseInOut])
         }
         animator.addCompletion { (position) in
             toView.isHidden = false
@@ -97,7 +97,6 @@ class AnimationController: NSObject, UIViewControllerAnimatedTransitioning {
         originalRoundedView.isHidden = true
         
         //Setup animatable view
-        let expandingMultiplier = 1/20.0
         let copyRoundedView = RoundedImageView(image: originalFullView.image)
         copyRoundedView.expandingMultiplier = expandingMultiplier
         copyRoundedView.frame = originalFullView.frame
@@ -107,18 +106,17 @@ class AnimationController: NSObject, UIViewControllerAnimatedTransitioning {
         let destinationRect = originalRoundedView.bounds
         
         // Create animator
-        let totalDuration = duration + duration * expandingMultiplier
-        let timing = UICubicTimingParameters(animationCurve: .linear)
-        let animator = UIViewPropertyAnimator(duration: totalDuration, timingParameters: timing)
-        let relativeDuration  = duration/totalDuration
+        let timing = UICubicTimingParameters(animationCurve: .easeInOut)
+        let animator = UIViewPropertyAnimator(duration: fullDuration, timingParameters: timing)
+        let relativeDuration  = duration/fullDuration
         let relativeStart = 1 - relativeDuration
         animator.addAnimations {
-            UIView.animateKeyframes(withDuration: totalDuration, delay: 0, options: [.calculationModeLinear], animations: {
+            UIView.animateKeyframes(withDuration: self.fullDuration, delay: 0, options: [.calculationModeLinear], animations: {
                 UIView.addKeyframe(withRelativeStartTime: relativeStart, relativeDuration: relativeDuration, animations: {
                     containerView.layoutIfNeeded()
                 })
             })
-            copyRoundedView.animateImageViewWith(action: .Collapse, initial: initialRect, destination: destinationRect, duration: self.duration, options: [.curveLinear])
+            copyRoundedView.animateImageViewWith(action: .Collapse, initial: initialRect, destination: destinationRect, duration: self.duration, options: [.curveEaseInOut])
         }
         animator.addCompletion { (position) in
             copyRoundedView.removeFromSuperview()
